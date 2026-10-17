@@ -1,0 +1,381 @@
+.login-scene {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 5vw, 48px);
+  overflow: hidden;
+}
+
+.login-scene::before {
+  content: "";
+  position: absolute;
+  width: min(120vw, 1500px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(205, 143, 151, 0.16);
+  box-shadow:
+    0 0 0 70px rgba(228, 151, 158, 0.045),
+    0 0 0 160px rgba(228, 151, 158, 0.028),
+    inset 0 0 160px rgba(253, 215, 221, 0.24);
+  pointer-events: none;
+}
+
+.login-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.login-dust span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 252, 253, 0.95);
+  box-shadow: 0 0 12px rgba(254, 232, 235, 0.95);
+  animation: dust-drift var(--dur, 12s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+@keyframes dust-drift {
+  0% {
+    transform: translate3d(0, 20px, 0) scale(0.7);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate3d(var(--drift, 30px), -120px, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+.login-single {
+  position: relative;
+  z-index: 1;
+  width: min(356px, 100%);
+  animation: panel-rise 1.05s var(--ease-silk) both;
+}
+
+.login-single::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(100% + 96px);
+  height: calc(100% + 96px);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(254, 230, 234, 0.45) 46%,
+    transparent 72%
+  );
+  filter: blur(20px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes panel-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── 一张纸卡，只放 QQ 扫码 ─────────────────────────── */
+
+.qr-card {
+  position: relative;
+  width: 100%;
+  padding: 30px 26px 24px;
+  border-radius: 7px 18px 8px 20px;
+  color: var(--paper-ink);
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.96), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(170, 101, 115, 0.022) 0 1px, transparent 1px 3px),
+    linear-gradient(150deg, #fffafb 0%, #fef3f4 55%, #fde7ea 100%);
+  box-shadow:
+    0 34px 70px rgba(162, 90, 101, 0.24),
+    0 4px 0 rgba(255, 255, 255, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -2px 8px rgba(172, 102, 111, 0.1);
+  transform: rotate(-0.6deg);
+}
+
+.qr-card::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(205, 143, 151, 0.26);
+  border-radius: 4px 12px 4px 13px;
+  pointer-events: none;
+}
+
+.qr-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23p)' opacity='0.028'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.qr-tape {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  width: 104px;
+  height: 27px;
+  transform: translateX(-50%) rotate(-2.2deg);
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 161, 172, 0.86) 0 9px,
+      rgba(254, 236, 239, 0.92) 9px 18px
+    );
+  border-left: 2px dashed rgba(255, 255, 255, 0.65);
+  border-right: 2px dashed rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 10px rgba(184, 110, 120, 0.16);
+  opacity: 0.94;
+}
+
+.qr-title {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: clamp(18px, 4.6vw, 21px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: #6e4248;
+  white-space: nowrap;
+}
+
+.qr-frame {
+  position: relative;
+  z-index: 1;
+  width: min(232px, 68vw);
+  aspect-ratio: 1;
+  margin: 22px auto 18px;
+  padding: 11px;
+  background: #fffdfd;
+  border: 1px solid rgba(205, 143, 151, 0.3);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 3px #fff6f8,
+    inset 0 0 22px rgba(172, 102, 111, 0.07),
+    0 6px 18px rgba(162, 90, 101, 0.1);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.qq-qr-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  mix-blend-mode: multiply;
+  filter: contrast(1.04);
+}
+
+.qr-scanline {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  top: 12%;
+  background: linear-gradient(90deg, transparent, rgba(190, 96, 104, 0.55), transparent);
+  box-shadow: 0 0 14px rgba(190, 96, 104, 0.42);
+  animation: scanline 4.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scanline {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  86% {
+    opacity: 0.9;
+  }
+  95% {
+    transform: translateY(170px);
+    opacity: 0;
+  }
+}
+
+.qr-skeleton {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: rgba(110, 66, 72, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+}
+
+.qr-status {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 22px;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  color: rgba(110, 66, 72, 0.72);
+  text-align: center;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #da8a92;
+  box-shadow: 0 0 0 0 rgba(218, 138, 146, 0.36);
+  animation: status-pulse 2.6s ease-out infinite;
+}
+
+.qr-status[data-tone="error"] {
+  color: #9b3a40;
+}
+
+.qr-status[data-tone="ok"] {
+  color: #4b7350;
+}
+
+.qr-status[data-tone="ok"] .status-dot {
+  background: #568a5e;
+  animation: none;
+}
+
+.qr-status[data-tone="error"] .status-dot {
+  background: #a94331;
+  animation: none;
+}
+
+@keyframes status-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(218, 138, 146, 0.36);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(218, 138, 146, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(218, 138, 146, 0);
+  }
+}
+
+.qr-actions {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.qr-actions:empty {
+  display: none;
+}
+
+.qr-actions .btn {
+  min-height: 38px;
+  font-size: 12px;
+  border-radius: 9px;
+  letter-spacing: 0.14em;
+}
+
+.qr-actions .btn-paper {
+  color: #6e4248;
+  border: 1px solid rgba(205, 143, 151, 0.36);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(254, 234, 237, 0.92));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 6px rgba(162, 90, 101, 0.1);
+}
+
+.qr-actions .btn-paper:hover {
+  background: linear-gradient(180deg, #ffffff, #fef1f3);
+}
+
+.qr-actions .qr-dev-link {
+  justify-self: center;
+  min-height: 28px;
+  padding: 0 12px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: rgba(110, 66, 72, 0.58);
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.qr-actions .qr-dev-link:hover {
+  color: var(--rose-deep);
+  background: transparent;
+}
+
+.qr-notice {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  font-size: 10.5px;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+  color: #9b3a40;
+  text-align: center;
+}
+
+.qr-dev-badge {
+  position: absolute;
+  top: -12px;
+  right: -10px;
+  z-index: 3;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: #fff9fa;
+  background: rgba(187, 98, 105, 0.94);
+  border: 1px solid rgba(254, 244, 245, 0.6);
+  box-shadow: 0 6px 16px rgba(162, 90, 101, 0.26);
+  transform: rotate(2deg);
+}
+
+@media (max-width: 480px) {
+  .login-scene {
+    padding: 22px 16px max(22px, env(safe-area-inset-bottom));
+  }
+
+  .qr-card {
+    padding: 28px 20px 22px;
+    transform: none;
+  }
+
+  .qr-title {
+    font-size: 18px;
+  }
+
+  .login-scene::before {
+    display: none;
+  }
+}

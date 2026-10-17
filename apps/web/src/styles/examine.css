@@ -1,0 +1,674 @@
+.examine {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 2.4vh, 26px);
+  padding: max(20px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
+  animation: examine-in 0.55s var(--ease-silk) both;
+}
+
+.examine.is-closing {
+  animation: examine-out 0.48s ease-in forwards;
+}
+
+.examine.is-deleting .examine-card-shell {
+  opacity: 0;
+  transform: perspective(1200px) translateY(30px) scale(0.82) rotateX(8deg);
+  transition: transform 0.5s ease-in, opacity 0.42s ease-in;
+}
+
+.examine.is-deleting .examine-meta {
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+
+@keyframes examine-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes examine-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.examine-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(58% 52% at 50% 40%, rgba(255, 248, 249, 0.72), transparent 72%),
+    radial-gradient(100% 100% at 50% 50%, rgba(251, 238, 229, 0.8), rgba(244, 224, 212, 0.94));
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+}
+
+.examine-close,
+.examine-menu-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: rgba(110, 66, 72, 0.8);
+  border: 1px solid rgba(205, 143, 151, 0.32);
+  background: rgba(255, 248, 249, 0.82);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.3s, background 0.3s, border-color 0.3s;
+}
+
+.examine-close {
+  position: absolute;
+  z-index: 8;
+  top: max(18px, env(safe-area-inset-top));
+  right: clamp(16px, 3vw, 34px);
+}
+
+.examine-close:hover {
+  transform: rotate(90deg);
+  background: rgba(255, 251, 252, 0.96);
+  border-color: rgba(194, 100, 108, 0.48);
+}
+
+.examine-tools {
+  position: absolute;
+  z-index: 11;
+  top: max(18px, env(safe-area-inset-top));
+  left: clamp(16px, 3vw, 34px);
+}
+
+.examine-menu-btn {
+  position: relative;
+  z-index: 12;
+}
+
+.examine-menu-btn:hover {
+  background: rgba(255, 251, 252, 0.96);
+  border-color: rgba(194, 100, 108, 0.48);
+}
+
+.examine-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  cursor: default;
+  background: transparent;
+}
+
+.examine-menu {
+  position: absolute;
+  z-index: 13;
+  top: 50px;
+  left: 0;
+  width: 152px;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+  border-radius: 14px;
+  border: 1px solid rgba(205, 143, 151, 0.34);
+  background:
+    radial-gradient(90% 70% at 30% 0%, rgba(255, 255, 255, 0.96), transparent 70%),
+    linear-gradient(160deg, #fffafb, #fdebed);
+  box-shadow:
+    0 20px 44px rgba(162, 90, 101, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  animation: menu-in 0.3s var(--ease-silk);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.examine-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: #6e4248;
+  text-align: left;
+  transition: background 0.26s, color 0.26s;
+}
+
+.examine-menu button:hover {
+  background: rgba(252, 230, 232, 0.8);
+}
+
+.examine-menu button.is-danger {
+  color: #a9554f;
+}
+
+.examine-menu button.is-danger:hover {
+  background: rgba(255, 226, 220, 0.8);
+}
+
+/* ── 编辑 / 删除确认 ────────────────────────────────── */
+
+.examine-dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(93, 52, 59, 0.18);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: examine-in 0.36s var(--ease-silk) both;
+}
+
+.examine-dialog {
+  position: fixed;
+  z-index: 21;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(340px, calc(100vw - 36px));
+  padding: 24px;
+  display: grid;
+  gap: 15px;
+  border-radius: 18px;
+  border: 1px solid rgba(205, 143, 151, 0.38);
+  background:
+    radial-gradient(90% 60% at 20% 0%, rgba(255, 255, 255, 0.98), transparent 70%),
+    linear-gradient(160deg, #fffafb, #fdebed);
+  box-shadow:
+    0 34px 70px rgba(162, 90, 101, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  animation: dialog-in 0.45s var(--ease-silk) both;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.examine-dialog h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #623e41;
+}
+
+.examine-dialog-text {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink-dim);
+}
+
+.examine-dialog label {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+}
+
+.examine-dialog input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border-radius: 9px;
+  border: 1px solid rgba(205, 143, 151, 0.32);
+  background: rgba(255, 252, 253, 0.9);
+  color: #5c4133;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.examine-dialog input:focus {
+  outline: none;
+  border-color: rgba(194, 100, 108, 0.52);
+  box-shadow: 0 0 0 3px rgba(228, 151, 158, 0.14);
+}
+
+.examine-dialog input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  color-scheme: light;
+  font-size: 14px;
+}
+
+.examine-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.examine-dialog-actions .btn {
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 12px;
+}
+
+.examine-edit-error {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #a24c44;
+}
+
+.examine-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 2.8vh, 28px);
+  width: min(100%, 580px);
+}
+
+.examine-card-shell {
+  --ar: 0.716;
+  --rx: 0deg;
+  --ry: 0deg;
+  --hx: 50%;
+  --hy: 40%;
+  --hue: 0deg;
+  position: relative;
+  perspective: 1200px;
+  transform: perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.28s ease-out;
+  /* backwards 而不是 both：动画结束后不再由填充帧接管 transform，
+     陀螺仪写入的 --rx/--ry 才能在 Safari 上继续生效 */
+  animation: card-rise 1s var(--ease-silk) backwards;
+  touch-action: none;
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) translateY(46px) scale(0.88) rotateX(8deg);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.examine-card-anchor {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.examine-card-shell.is-from-fan {
+  animation: none;
+}
+
+.examine.is-from-fan .examine-meta {
+  animation-delay: 0.46s;
+}
+
+.examine-flip {
+  position: relative;
+  width: min(86vw, calc(52vh * var(--ar)), 430px);
+  aspect-ratio: var(--ar);
+  transform-style: preserve-3d;
+  transition: transform 1.15s var(--ease-silk);
+  cursor: pointer;
+}
+
+.examine-flip.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* 只有正面的卡：翻面被拒绝时轻轻摇头 */
+.examine-flip.is-nudging {
+  animation: card-nudge 0.62s ease-in-out;
+}
+
+@keyframes card-nudge {
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+  16% {
+    transform: rotateY(-9deg);
+  }
+  36% {
+    transform: rotateY(7deg);
+  }
+  54% {
+    transform: rotateY(-5deg);
+  }
+  72% {
+    transform: rotateY(3deg);
+  }
+  88% {
+    transform: rotateY(-1.5deg);
+  }
+}
+
+.examine-face {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(min(86vw, 430px) * 0.032);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: #fff8fa;
+  box-shadow:
+    0 0 0 1px rgba(205, 143, 151, 0.5),
+    0 0 0 5px rgba(255, 249, 250, 0.92),
+    0 0 0 6px rgba(205, 143, 151, 0.26),
+    0 40px 80px rgba(162, 90, 101, 0.28),
+    0 14px 30px rgba(162, 90, 101, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.examine-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.examine-face.back {
+  transform: rotateY(180deg);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 247, 249, 0.34) 0 6%, transparent 7%),
+    repeating-conic-gradient(from 0deg at 50% 44%, rgba(255, 246, 248, 0.17) 0deg 1.3deg, transparent 1.3deg 7deg),
+    repeating-radial-gradient(circle at 50% 44%, transparent 0 8.5%, rgba(255, 246, 248, 0.09) 8.5% 9%, transparent 9% 17%),
+    linear-gradient(150deg, #e7a3aa 0%, #d88c94 55%, #c57a84 100%);
+}
+
+.examine-face.back::before {
+  content: "";
+  position: absolute;
+  inset: 7%;
+  border: 1px solid rgba(255, 246, 248, 0.42);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 3px rgba(150, 75, 83, 0.1);
+}
+
+.examine-back-mark {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  color: rgba(255, 247, 249, 0.85);
+}
+
+.examine-back-emblem {
+  display: block;
+  width: clamp(46px, 11vw, 70px);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 1px 0 rgba(150, 75, 83, 0.2));
+}
+
+.examine-back-emblem svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.examine-back-mark span:last-child {
+  font-size: 9.5px;
+  letter-spacing: 0.34em;
+  opacity: 0.76;
+}
+
+/* ── 常驻彩光层 ─────────────────────────────────────── */
+
+.holo-foil,
+.holo-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(min(86vw, 430px) * 0.032);
+  pointer-events: none;
+  z-index: 3;
+  /* 与卡面同处一个 3D 平面并稍微前置，随翻面一起转动 */
+  transform: translateZ(0.6px);
+}
+
+.holo-foil {
+  opacity: 0.32;
+  mix-blend-mode: color;
+  background:
+    radial-gradient(
+      46% 52% at var(--hx) var(--hy),
+      rgba(255, 90, 119, 0.9) 0%,
+      rgba(255, 214, 120, 0.78) 30%,
+      rgba(90, 235, 200, 0.68) 56%,
+      transparent 80%
+    ),
+    linear-gradient(
+      116deg,
+      transparent 16%,
+      rgba(255, 150, 168, 0.28) 34%,
+      rgba(255, 226, 158, 0.3) 50%,
+      rgba(140, 230, 214, 0.26) 66%,
+      transparent 84%
+    ),
+    repeating-linear-gradient(
+      112deg,
+      rgba(255, 120, 144, 0.66) 0 1.8%,
+      rgba(255, 218, 132, 0.68) 3.6% 5.4%,
+      rgba(112, 230, 202, 0.66) 7.2% 9%,
+      rgba(148, 158, 255, 0.6) 10.8% 12.6%,
+      transparent 15% 21%
+    );
+  background-size: 100% 100%, 160% 160%, 240% 240%;
+  background-position: center, var(--hx) var(--hy), var(--hx) var(--hy);
+  filter: blur(2px) saturate(1.08) hue-rotate(var(--hue));
+  -webkit-mask-image: repeating-linear-gradient(66deg, #000 0 1.6%, transparent 1.6% 5%);
+  mask-image: repeating-linear-gradient(66deg, #000 0 1.6%, transparent 1.6% 5%);
+  transition: opacity 0.5s ease, filter 0.4s linear;
+}
+
+.holo-glare {
+  opacity: 0.55;
+  background: radial-gradient(
+    circle at var(--hx) var(--hy),
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(254, 246, 247, 0.24) 22%,
+    transparent 56%
+  );
+  mix-blend-mode: soft-light;
+  filter: blur(0.4px);
+  transition: opacity 0.45s;
+}
+
+.examine-card-shell.is-holo .holo-foil {
+  opacity: 0.66;
+  animation: holo-drift 2.8s linear infinite;
+}
+
+.examine-card-shell.is-holo .holo-glare {
+  opacity: 0.95;
+}
+
+@keyframes holo-drift {
+  from {
+    background-position: center, center, 0% 50%;
+    filter: blur(2px) saturate(1.08) hue-rotate(0deg);
+  }
+  to {
+    background-position: center, center, 200% 50%;
+    filter: blur(2px) saturate(1.08) hue-rotate(26deg);
+  }
+}
+
+.holo-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  transform: translateZ(0.8px);
+  border-radius: calc(min(86vw, 430px) * 0.032);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.22;
+  transition: opacity 0.4s;
+}
+
+.examine-card-shell.is-holo .holo-sparkles {
+  opacity: 0.9;
+}
+
+.holo-sparkles span {
+  position: absolute;
+  width: var(--size, 4px);
+  height: var(--size, 4px);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 22%, rgba(255, 226, 176, 0.75) 40%, transparent 70%);
+  mix-blend-mode: color-dodge;
+  animation: sparkle var(--dur, 1s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.holo-sparkles span:nth-child(3n) {
+  background: radial-gradient(circle, #fff 0 18%, rgba(168, 236, 255, 0.8) 40%, transparent 70%);
+}
+
+.holo-sparkles span:nth-child(3n + 1) {
+  background: radial-gradient(circle, #fff 0 18%, rgba(255, 178, 198, 0.8) 40%, transparent 70%);
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    transform: scale(0.2) rotate(0deg);
+    opacity: 0;
+  }
+  42% {
+    transform: scale(1.1) rotate(30deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.7) rotate(70deg);
+    opacity: 0.5;
+  }
+}
+
+.examine-card-shell.is-holo {
+  animation: holo-wobble 1.2s ease-in-out infinite;
+}
+
+@keyframes holo-wobble {
+  0%,
+  100% {
+    transform: perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(0deg) skewY(0deg) scale(1);
+  }
+  22% {
+    transform: perspective(1200px) rotateX(calc(var(--rx) + 2.4deg)) rotateY(calc(var(--ry) - 3.2deg)) rotateZ(-1.2deg)
+      skewY(0.7deg) scale(1.012);
+  }
+  52% {
+    transform: perspective(1200px) rotateX(calc(var(--rx) - 2deg)) rotateY(calc(var(--ry) + 3.6deg)) rotateZ(1.1deg)
+      skewY(-0.6deg) scale(1.006);
+  }
+  76% {
+    transform: perspective(1200px) rotateX(calc(var(--rx) + 1.2deg)) rotateY(calc(var(--ry) - 1.6deg)) rotateZ(-0.6deg)
+      skewY(0.3deg) scale(1.01);
+  }
+}
+
+/* ── 卡片信息与操作 ─────────────────────────────────── */
+
+.examine-meta {
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+  text-align: center;
+  animation: meta-in 0.8s var(--ease-silk) 0.18s both;
+}
+
+@keyframes meta-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.examine-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.2vw, 32px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #6e4248;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  max-width: min(30ch, 86vw);
+  overflow-wrap: anywhere;
+}
+
+.examine-date {
+  font-size: 10.5px;
+  letter-spacing: 0.32em;
+  color: var(--ink-faint);
+}
+
+.examine-side-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  color: rgba(194, 100, 108, 0.72);
+}
+
+.examine-side-label::before,
+.examine-side-label::after {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: rgba(205, 143, 151, 0.3);
+}
+
+@media (max-height: 700px) {
+  .examine-flip {
+    width: min(80vw, calc(46vh * var(--ar)), 360px);
+  }
+
+  .examine-stage {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .examine-dialog {
+    padding: 20px;
+  }
+
+  .examine-flip {
+    width: min(88vw, calc(50vh * var(--ar)), 400px);
+  }
+}

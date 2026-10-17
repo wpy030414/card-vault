@@ -1,0 +1,28 @@
+{
+  "name": "cardvault",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n server,web -c yellow,cyan \"pnpm --filter @cardvault/server dev\" \"wait-on tcp:127.0.0.1:${PORT:-52188} && pnpm --filter @cardvault/web dev\"",
+    "build": "pnpm --filter @cardvault/server build && pnpm --filter @cardvault/web build",
+    "start": "pnpm --filter @cardvault/server start",
+    "test": "pnpm test:e2e",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "typecheck": "pnpm -r typecheck && tsc --noEmit -p tsconfig.e2e.json",
+    "db:generate": "drizzle-kit generate --config drizzle.sqlite.config.ts"
+  },
+  "devDependencies": {
+    "@homurajs/db": "^26.10.15",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "concurrently": "^10.0.6",
+    "drizzle-kit": "1.0.0-rc.4",
+    "typescript": "^5.9.3",
+    "wait-on": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
