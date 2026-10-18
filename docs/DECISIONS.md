@@ -6,7 +6,7 @@
 
 ## D2. Node 原生 HTTP，不引入后端框架
 
-路由数量有限（认证 6 条、卡片 4 条、图片 2 条），用 `node:http` 即可保持依赖最小、启动最快，也便于直接阅读请求链路。代价是需要自己实现 JSON 解析、Cookie 与静态资源服务，这些集中在 `apps/server/src/http.ts` 与 `apps/server/src/index.ts`。
+路由数量有限（认证 6 条、卡片 4 条、裁切模式 3 条、图片 2 条），用 `node:http` 即可保持依赖最小、启动最快，也便于直接阅读请求链路。代价是需要自己实现 JSON 解析、Cookie 与静态资源服务，这些集中在 `apps/server/src/http.ts` 与 `apps/server/src/index.ts`。
 
 ## D3. `@homurajs/db` + Drizzle + `node:sqlite`
 
@@ -72,3 +72,7 @@ E2E 使用真实构建、真实 Node 服务、真实 SQLite 与合成卡面照�
 ## D17. 移除 Origin 同源校验
 
 最初在 `http.ts` 里用 `PUBLIC_URL` 白名单校验写请求的 Origin。部署到局域网 IP 后，浏览器 POST 携带的 Origin 与默认的 `http://localhost:52188` 不一致，取码接口被判 `cross_origin`，页面能打开但二维码请求 403。单用户私人应用的 CSRF 实际由 `SameSite=Lax` 的 HttpOnly 会话 Cookie 承担（跨站 POST 不携带 Cookie），JSON 写接口也无法被简单表单跨站提交，因此该校验是冗余的，还强制 `PUBLIC_URL` 与实际访问地址严格一致。移除 `assertSameOrigin` 后，「后端代理腾讯二维码」不再依赖站点地址配置；`PUBLIC_URL` 仍用于 QQ 回调与 Secure Cookie 判定。
+
+## D18. 自定义裁切模式只保存归一化四角
+
+用户有大量同一拍摄位置、同一裁切策略的照片，每次重复拖四角不现实。模式保存四个角的归一化坐标（`0..1`）而不是示例照片或像素坐标：像素坐标绑定图片尺寸，换一张分辨率不同的照片就失效；保存照片则让模式变成第二个图片库，备份体积和权限面都扩大。归一化坐标可以直接跨宽高比复用，正好对应用户所说的「四个落点在图里的相对位置」。模式存在 `crop_presets` 表并随用户级联删除，前端在「整图」右侧列成快捷按钮，点击即替换四角；手动拖动或重新识别会取消当前模式的高亮，避免误以为仍在套用。

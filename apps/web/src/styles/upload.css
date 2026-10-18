@@ -330,25 +330,6 @@
   color: var(--ink-faint);
 }
 
-.detect-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  font-size: 9.5px;
-  letter-spacing: 0.1em;
-  color: rgba(65, 110, 78, 0.9);
-  border: 1px solid rgba(112, 156, 118, 0.34);
-  background: rgba(222, 239, 220, 0.55);
-}
-
-.detect-badge[data-auto="false"] {
-  color: rgba(151, 100, 62, 0.9);
-  border-color: rgba(205, 143, 151, 0.3);
-  background: rgba(255, 239, 219, 0.65);
-}
-
 .crop-toolbar {
   display: flex;
   gap: 8px;
@@ -360,6 +341,23 @@
   padding: 0 13px;
   font-size: 10.5px;
   letter-spacing: 0.08em;
+}
+
+.crop-preset-btn {
+  max-width: 168px;
+}
+
+.crop-preset-btn .crop-preset-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crop-preset-btn.is-active {
+  color: #8d4a53;
+  border-color: rgba(194, 100, 108, 0.5);
+  background: rgba(255, 236, 239, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 3px rgba(228, 151, 158, 0.12);
 }
 
 .crop-frame-wrap {
@@ -650,6 +648,166 @@
   line-height: 1.85;
   letter-spacing: 0.06em;
   color: rgba(161, 110, 118, 0.8);
+}
+
+/* ── 自定义裁切模式 ─────────────────────────────────── */
+
+.preset-sheet {
+  width: min(760px, 100%);
+}
+
+.preset-head-btn {
+  min-height: 34px;
+  padding: 0 13px;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+
+.preset-list {
+  display: grid;
+  gap: 10px;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(208, 145, 153, 0.22);
+  background: rgba(255, 250, 251, 0.66);
+}
+
+.preset-thumb {
+  flex: none;
+}
+
+.preset-thumb-frame {
+  fill: rgba(255, 247, 249, 0.92);
+  stroke: rgba(205, 143, 151, 0.34);
+}
+
+.preset-thumb-quad {
+  fill: rgba(228, 151, 158, 0.16);
+  stroke: rgba(151, 89, 98, 0.82);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.preset-item-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.preset-item-text strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #6e4248;
+}
+
+.preset-item-text span {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.preset-delete {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+}
+
+.preset-delete:hover {
+  color: #a9554f;
+  border-color: rgba(169, 85, 79, 0.4);
+}
+
+.preset-empty {
+  display: grid;
+  place-items: center;
+  gap: 9px;
+  padding: 42px 24px;
+  border-radius: 15px;
+  border: 1px dashed rgba(205, 143, 151, 0.38);
+  background: rgba(255, 247, 249, 0.48);
+  text-align: center;
+}
+
+.preset-empty-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  color: rgba(161, 110, 118, 0.82);
+  border: 1px solid rgba(205, 143, 151, 0.3);
+  background: rgba(255, 250, 251, 0.9);
+}
+
+.preset-empty p {
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: 0.1em;
+  color: #6e4248;
+}
+
+.preset-empty span {
+  max-width: 42ch;
+  font-size: 10.5px;
+  line-height: 1.85;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+}
+
+.preset-name-field {
+  margin-bottom: 16px;
+}
+
+.preset-pick {
+  display: grid;
+  place-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 230px;
+  padding: 22px;
+  border-radius: 15px;
+  border: 1.5px dashed rgba(205, 143, 151, 0.42);
+  background: rgba(255, 247, 249, 0.48);
+  color: var(--ink-dim);
+  transition: border-color 0.3s, background 0.3s, color 0.3s;
+}
+
+.preset-pick:hover:not(:disabled) {
+  color: var(--rose-deep);
+  border-color: rgba(194, 100, 108, 0.5);
+  background: rgba(255, 249, 250, 0.82);
+}
+
+.preset-pick span {
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  color: #6e4248;
+}
+
+.preset-pick em {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.preset-error {
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #c06565;
 }
 
 @media (max-width: 720px) {

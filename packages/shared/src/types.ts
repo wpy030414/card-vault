@@ -43,3 +43,20 @@ export interface CardOrigin {
   height: number
   angle: number
 }
+
+/** 归一化坐标（0..1），与图片像素尺寸无关 */
+export interface CropPoint {
+  x: number
+  y: number
+}
+
+/** 四角落点，顺序固定：左上、右上、右下、左下 */
+export type CropQuad = [CropPoint, CropPoint, CropPoint, CropPoint]
+
+/** 用户保存的自定义裁切模式：同一拍摄位置下复用四角的相对落点 */
+export interface CropPreset {
+  id: string
+  name: string
+  quad: CropQuad
+  createdAt: number
+}

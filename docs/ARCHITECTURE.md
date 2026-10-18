@@ -28,6 +28,7 @@ Node HTTP 服务（node:http，Node 26 直接执行 TS）
 | `sessions` | `id`（token 哈希）、`user_id`、`expires_at` | HttpOnly Cookie 只保存原始 token |
 | `login_attempts` | `token`、`mode`、`status`、`qrsig`、`ptqrtoken`、`qq_uin` | 扫码会话，10 分钟过期 |
 | `cards` | 标题、日期、`holo` 镀层标记、正面/背面 mime、尺寸、BLOB | 图片与元数据同表，删除级联 |
+| `crop_presets` | `name`、`quad`（归一化四角 JSON）、`created_at` | 自定义裁切模式，按用户级联删除 |
 
 会话默认永久（`SESSION_DAYS=0`，Cookie 400 天滚动续期）；登录尝试 10 分钟；图片最大 8MB，请求体最大 24MB。
 
@@ -65,6 +66,7 @@ transform = rotate(cardAngle) translateY(-R) scale(s)
 
 - `PATCH /api/cards/:id` 只更新标题与日期；校验与创建一致。
 - 端详左上角菜单提供编辑/删除；编辑用轻量弹窗，删除先确认，再播放缩小淡出动画。
+- 主页顶栏的菜单按钮打开对话层，提供「自定义裁切模式」管理与「退出登录」；退出仍需二次确认。
 - 牌山 → 端详使用共享元素过渡：记录源卡的中心、未旋转宽高与角度，端详卡从该位置旋转、平移、缩放到位。
 
 ## 6. 卡面检测与拉正
@@ -74,6 +76,7 @@ transform = rotate(cardAngle) translateY(-R) scale(s)
 3. 每个候选求凸包与旋转卡尺最小外接矩形，按面积/周长覆盖/长宽比打分。
 4. 输出四角；失败时回退为内缩 5% 的矩形。
 5. 手动调整后，以单位正方形 → 四边形的单应矩阵反向采样，双线性插值、白底合成，输出最长边 1600px 的 JPEG。
+6. 自定义裁切模式保存归一化四角；裁切页点击模式时直接替换当前四角，再走同一套拉正流程。模式本身不保存照片。
 
 ## 7. 端详与彩光
 

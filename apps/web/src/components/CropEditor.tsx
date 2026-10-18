@@ -1,16 +1,22 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { DetectionResult, Point, Quad } from '../lib/detectCard'
+import type { CropPreset } from '@cardvault/shared/types'
+import type { Point, Quad } from '../lib/detectCard'
 import { detectCard, warpCrop, type PreparedImage } from '../lib/image'
 import { clamp } from '../lib/format'
 import type { CropResult } from '@cardvault/shared/types'
-import { IconChevronLeft, IconChevronRight, IconImage, IconSparkle } from './icons'
+import { IconChevronLeft, IconChevronRight, IconCrop, IconImage, IconSparkle } from './icons'
 
 interface CropEditorProps {
   prepared: PreparedImage
   sideLabel: string
   initialQuad: Quad | null
+  /** 拉到裁切页时展示的自定义模式；点一下即把四角落到保存的相对位置 */
+  presets?: CropPreset[]
+  /** 定义模式：只保存四角，不做透视拉正 */
+  presetMode?: boolean
   onBack: () => void
-  onConfirm: (crop: CropResult, quad: Quad) => void
+  onConfirm?: (crop: CropResult, quad: Quad) => void
+  onSavePreset?: (quad: Quad) => Promise<void> | void
 }
 
 interface DragState {
@@ -28,13 +34,22 @@ const FULL_QUAD: Quad = [
   { x: 0.004, y: 0.996 },
 ]
 
-export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm }: CropEditorProps) {
+export function CropEditor({
+  prepared,
+  sideLabel,
+  initialQuad,
+  presets,
+  presetMode = false,
+  onBack,
+  onConfirm,
+  onSavePreset,
+}: CropEditorProps) {
   const [quad, setQuad] = useState<Quad | null>(initialQuad)
-  const [detection, setDetection] = useState<DetectionResult | null>(null)
   const [availableWidth, setAvailableWidth] = useState(0)
   const [busy, setBusy] = useState(false)
   const [detecting, setDetecting] = useState(false)
   const [error, setError] = useState('')
+  const [appliedPresetId, setAppliedPresetId] = useState<string | null>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const dragRef = useRef<DragState | null>(null)
@@ -44,12 +59,13 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
   useEffect(() => {
     if (initialRef.current) {
       setQuad(initialRef.current)
-      setDetection(null)
       return
     }
-    const result = detectCard(prepared)
-    setQuad(result.quad)
-    setDetection(result)
+    try {
+      setQuad(detectCard(prepared).quad)
+    } catch {
+      setQuad(FULL_QUAD)
+    }
   }, [prepared])
 
   useLayoutEffect(() => {
@@ -88,12 +104,12 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
   const rerunDetection = useCallback(() => {
     setDetecting(true)
     setError('')
+    setAppliedPresetId(null)
     window.setTimeout(() => {
       try {
         const result = detectCard(prepared)
         setQuad(result.quad)
-        setDetection(result)
-        if (!result.auto) setError('没有识别到明确的卡片边缘，请手动拖动四角')
+        if (!result.auto) setError('没有识别到明确的卡片边缘，请拖动四角或套用自定义模式')
       } catch {
         setError('识别失败，请手动调整四角')
       } finally {
@@ -102,10 +118,17 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
     }, 30)
   }, [prepared])
 
+  const applyPreset = (preset: CropPreset) => {
+    setQuad(preset.quad.map((point) => ({ ...point })) as Quad)
+    setAppliedPresetId(preset.id)
+    setError('')
+  }
+
   const beginDrag = (event: React.PointerEvent, kind: 'corner' | 'move', index: number) => {
     if (!quad) return
     event.preventDefault()
     event.stopPropagation()
+    setAppliedPresetId(null)
     dragRef.current = {
       kind,
       index,
@@ -149,30 +172,34 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
 
   const confirm = async () => {
     if (!quad || busy) return
+    if (presetMode && !onSavePreset) return
     setBusy(true)
     setError('')
     await new Promise((resolve) => window.setTimeout(resolve, 40))
     try {
-      const crop = warpCrop(prepared, quad)
-      onConfirm(crop, quad)
+      if (presetMode) {
+        await onSavePreset?.(quad)
+      } else {
+        const crop = warpCrop(prepared, quad)
+        onConfirm?.(crop, quad)
+      }
     } catch {
-      setError('拉正卡面时出错了，请重试或调整四角')
+      if (!presetMode) setError('拉正卡面时出错了，请重试或调整四角')
     } finally {
       setBusy(false)
     }
   }
+
+  const presetChoices = presetMode ? [] : (presets ?? [])
 
   return (
     <>
       <div className="crop-head">
         <div className="crop-side">
           {sideLabel}
-          <small>拖动四角贴合卡面</small>
+          <small>{presetMode ? '拖动四角框出示意位置' : '拖动四角贴合卡面'}</small>
         </div>
         <div className="crop-toolbar">
-          <span className="detect-badge" data-auto={detection?.auto ?? false}>
-            {detection?.auto ? `自动识别 · ${Math.round(detection.confidence * 100)}%` : '手动框选'}
-          </span>
           <button type="button" className="btn btn-ghost" onClick={rerunDetection} disabled={detecting}>
             <IconSparkle size={13} />
             {detecting ? '识别中…' : '重新识别'}
@@ -182,12 +209,26 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
             className="btn btn-ghost"
             onClick={() => {
               setQuad(FULL_QUAD)
-              setDetection(null)
+              setAppliedPresetId(null)
             }}
           >
             <IconImage size={13} />
             整图
           </button>
+          {presetChoices.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              className={`btn btn-ghost crop-preset-btn${appliedPresetId === preset.id ? ' is-active' : ''}`}
+              title={`套用自定义裁切模式「${preset.name}」`}
+              aria-pressed={appliedPresetId === preset.id}
+              data-preset-id={preset.id}
+              onClick={() => applyPreset(preset)}
+            >
+              <IconCrop size={13} />
+              <span className="crop-preset-name">{preset.name}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -227,14 +268,16 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
           {busy ? (
             <div className="crop-busy">
               <span className="spinner" />
-              <span>正在把卡面拉正…</span>
+              <span>{presetMode ? '正在保存模式…' : '正在把卡面拉正…'}</span>
             </div>
           ) : null}
         </div>
       </div>
 
       <p className="crop-tip">
-        自动识别框住的是照片里最大的一块近似矩形。四角可以随意拖动，透视、倾斜都会被拉正。
+        {presetMode
+          ? '以这张示例照片为准框出四角。保存后，同一拍摄位置的照片都能一键落到相同的相对位置。'
+          : '自动识别框住的是照片里最大的一块近似矩形。四角可以随意拖动，透视、倾斜都会被拉正；「整图」右侧的模式会直接落好四角。'}
       </p>
       {error ? (
         <p className="crop-tip" style={{ color: '#e5a491' }} role="status">
@@ -248,7 +291,7 @@ export function CropEditor({ prepared, sideLabel, initialQuad, onBack, onConfirm
           上一步
         </button>
         <button type="button" className="btn btn-gold" onClick={() => void confirm()} disabled={busy || !quad}>
-          下一步
+          {presetMode ? '保存模式' : '下一步'}
           <IconChevronRight size={15} />
         </button>
       </div>

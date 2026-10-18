@@ -9,6 +9,7 @@ test.describe('登录与访问控制', () => {
 
     expect((await request.get('/api/me')).status()).toBe(401)
     expect((await request.get('/api/cards')).status()).toBe(401)
+    expect((await request.get('/api/crop-presets')).status()).toBe(401)
     expect((await request.get('/media/00000000-0000-0000-0000-000000000000/front')).status()).toBe(401)
   })
 
@@ -19,6 +20,7 @@ test.describe('登录与访问控制', () => {
     await page.reload()
     await expect(page.locator('.vault')).toBeVisible()
 
+    await page.getByRole('button', { name: '收藏匣菜单' }).click()
     await page.getByRole('button', { name: '退出登录' }).click()
     await page.getByRole('alertdialog').getByRole('button', { name: '退出登录' }).click()
     await expect(page.getByText('使用 QQ 登录 CardVault')).toBeVisible()

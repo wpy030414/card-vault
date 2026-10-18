@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ApiError, api } from './api'
+import { CropPresetDialog } from './components/CropPresetDialog'
 import { ExamineView } from './components/ExamineView'
 import { LoginScreen } from './components/LoginScreen'
 import { UploadDialog } from './components/UploadDialog'
 import { VaultScreen } from './components/VaultScreen'
 import { IconVault } from './components/icons'
-import type { CardMeta, CardOrigin, User } from '@cardvault/shared/types'
+import type { CardMeta, CardOrigin, CropPreset, CropQuad, User } from '@cardvault/shared/types'
 
 type AuthState = { status: 'loading' } | { status: 'anon' } | { status: 'authed'; user: User }
 
@@ -29,6 +30,8 @@ export default function App() {
   const [examineId, setExamineId] = useState<string | null>(null)
   const [examineOrigin, setExamineOrigin] = useState<CardOrigin | null>(null)
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [presets, setPresets] = useState<CropPreset[]>([])
+  const [presetManagerOpen, setPresetManagerOpen] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const [toast, setToast] = useState<Toast | null>(null)
   const toastTimer = useRef<number | undefined>(undefined)
@@ -91,13 +94,28 @@ export default function App() {
     }
   }, [notify])
 
+  const loadPresets = useCallback(async () => {
+    try {
+      const result = await api.cropPresets()
+      setPresets(result.presets)
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        setAuth({ status: 'anon' })
+        return
+      }
+      notify(error instanceof Error ? error.message : '裁切模式读取失败', 'error')
+    }
+  }, [notify])
+
   useEffect(() => {
     if (auth.status !== 'authed') {
       setCardsLoaded(false)
+      setPresets([])
       return
     }
     void loadCards()
-  }, [auth.status, loadCards])
+    void loadPresets()
+  }, [auth.status, loadCards, loadPresets])
 
   const handleAuthed = useCallback((user: User) => {
     setAuth({ status: 'authed', user })
@@ -116,6 +134,8 @@ export default function App() {
     setExamineId(null)
     setExamineOrigin(null)
     setUploadOpen(false)
+    setPresets([])
+    setPresetManagerOpen(false)
   }, [])
 
   const handleCreated = useCallback(
@@ -127,6 +147,19 @@ export default function App() {
     },
     [notify],
   )
+
+  const handlePresetCreate = useCallback(
+    async (input: { name: string; quad: CropQuad }) => {
+      const { preset } = await api.createCropPreset(input)
+      setPresets((current) => [preset, ...current])
+    },
+    [],
+  )
+
+  const handlePresetDelete = useCallback(async (preset: CropPreset) => {
+    await api.deleteCropPreset(preset.id)
+    setPresets((current) => current.filter((item) => item.id !== preset.id))
+  }, [])
 
   const handleUpdate = useCallback(
     async (card: CardMeta, patch: { title: string; cardDate: string; holo: boolean }) => {
@@ -183,6 +216,7 @@ export default function App() {
           setExamineOrigin(origin ?? null)
         }}
         onOpenUpload={() => setUploadOpen(true)}
+        onOpenCropPresets={() => setPresetManagerOpen(true)}
         onLogout={() => void handleLogout()}
       />
 
@@ -200,7 +234,22 @@ export default function App() {
       ) : null}
 
       {uploadOpen ? (
-        <UploadDialog onClose={() => setUploadOpen(false)} onCreated={handleCreated} notify={notify} />
+        <UploadDialog
+          presets={presets}
+          onClose={() => setUploadOpen(false)}
+          onCreated={handleCreated}
+          notify={notify}
+        />
+      ) : null}
+
+      {presetManagerOpen ? (
+        <CropPresetDialog
+          presets={presets}
+          onClose={() => setPresetManagerOpen(false)}
+          onCreate={handlePresetCreate}
+          onDelete={handlePresetDelete}
+          notify={notify}
+        />
       ) : null}
 
       <ToastView toast={toast} />

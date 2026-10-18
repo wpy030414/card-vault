@@ -22,6 +22,7 @@ import {
   upsertUser,
 } from './auth.ts'
 import { createCard, deleteCard, getCardImage, listCards, updateCard } from './cards.ts'
+import { createCropPreset, deleteCropPreset, listCropPresets } from './cropPresets.ts'
 import { config } from './config.ts'
 import { closeDb, initDb } from './db.ts'
 import { HttpError, clientIp, readJson, redirect, sendEmpty, sendJson } from './http.ts'
@@ -274,6 +275,29 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
   if (cardMatch && method === 'DELETE') {
     const user = await requireUser(req)
     await deleteCard(user.id, cardMatch[1]!)
+    sendEmpty(res, 204)
+    return
+  }
+
+  if (path === '/api/crop-presets' && method === 'GET') {
+    const user = await requireUser(req)
+    sendJson(res, 200, { presets: await listCropPresets(user.id) })
+    return
+  }
+
+  if (path === '/api/crop-presets' && method === 'POST') {
+    const user = await requireUser(req)
+    const body = await readJson(req)
+    if (!body || typeof body !== 'object') throw new HttpError(400, '请求体格式错误', 'invalid_body')
+    const preset = await createCropPreset(user.id, body as Record<string, unknown>)
+    sendJson(res, 201, { preset })
+    return
+  }
+
+  const presetMatch = /^\/api\/crop-presets\/([0-9a-f-]{36})$/.exec(path)
+  if (presetMatch && method === 'DELETE') {
+    const user = await requireUser(req)
+    await deleteCropPreset(user.id, presetMatch[1]!)
     sendEmpty(res, 204)
     return
   }

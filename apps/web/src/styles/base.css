@@ -529,6 +529,67 @@ img {
   font-size: 12px;
 }
 
+/* ── 主页菜单 ───────────────────────────────────────── */
+
+.vault-menu-dialog {
+  width: min(370px, calc(100vw - 36px));
+}
+
+.vault-menu-list {
+  display: grid;
+  gap: 9px;
+}
+
+.vault-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 13px;
+  border-radius: 13px;
+  border: 1px solid rgba(208, 145, 153, 0.26);
+  background: rgba(255, 250, 251, 0.72);
+  color: var(--ink-dim);
+  text-align: left;
+  transition: color 0.3s, border-color 0.3s, background 0.3s, transform 0.3s var(--ease-out);
+}
+
+.vault-menu-item:hover {
+  color: var(--rose-deep);
+  border-color: rgba(194, 100, 108, 0.42);
+  background: rgba(255, 255, 251, 0.95);
+}
+
+.vault-menu-item:active {
+  transform: scale(0.988);
+}
+
+.vault-menu-item svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.vault-menu-item span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.vault-menu-item strong {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #6e4248;
+}
+
+.vault-menu-item em {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
 @keyframes confirm-fade {
   from {
     opacity: 0;

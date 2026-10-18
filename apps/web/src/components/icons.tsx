@@ -91,6 +91,15 @@ export function IconImage(props: IconProps) {
   )
 }
 
+export function IconCrop(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M6 3v13a2 2 0 0 0 2 2h13" />
+      <path d="M3 6h13a2 2 0 0 1 2 2v13" />
+    </svg>
+  )
+}
+
 export function IconChevronLeft(props: IconProps) {
   return (
     <svg {...base(props)}>

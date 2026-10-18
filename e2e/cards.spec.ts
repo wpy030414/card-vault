@@ -18,7 +18,7 @@ test.describe('收录卡片', () => {
     await openUpload(page)
     await choosePhoto(page, 'front', photo)
     await page.getByRole('button', { name: /开始裁切/ }).click()
-    await expect(page.locator('.detect-badge')).toContainText('自动识别', { timeout: 20_000 })
+    await expect(page.locator('.crop-line')).toBeVisible()
 
     await page.getByRole('button', { name: /下一步/ }).click()
     await expect(page.locator('.details-grid')).toBeVisible()
@@ -53,10 +53,10 @@ test.describe('收录卡片', () => {
     await choosePhoto(page, 'front', frontPhoto)
     await choosePhoto(page, 'back', backPhoto)
     await page.getByRole('button', { name: /开始裁切/ }).click()
-    await expect(page.locator('.detect-badge')).toContainText('自动识别')
+    await expect(page.locator('.crop-line')).toBeVisible()
     await page.getByRole('button', { name: /下一步/ }).click()
     await expect(page.locator('.crop-side')).toContainText('背面')
-    await expect(page.locator('.detect-badge')).toContainText('自动识别')
+    await expect(page.locator('.crop-line')).toBeVisible()
     await page.getByRole('button', { name: /下一步/ }).click()
 
     await page.locator('#card-title').fill('双面典藏卡')

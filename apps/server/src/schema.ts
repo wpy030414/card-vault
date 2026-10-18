@@ -71,6 +71,23 @@ export const cards = sqliteTable(
   (t) => [index('cards_user_created_idx').on(t.userId, t.createdAt)],
 )
 
+/** 自定义裁切模式：保存一组归一化四角落点，供同类拍摄位置的照片一键套用 */
+export const cropPresets = sqliteTable(
+  'crop_presets',
+  {
+    id: sqliteCol.id(),
+    userId: sqliteCol.text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: sqliteCol.text('name').notNull(),
+    /** 归一化四角 JSON，顺序：左上、右上、右下、左下 */
+    quad: sqliteCol.text('quad').notNull(),
+    createdAt: sqliteCol.epochMs('created_at').notNull(),
+  },
+  (t) => [index('crop_presets_user_idx').on(t.userId, t.createdAt)],
+)
+
 export type UserRow = typeof users.$inferSelect
+export type CropPresetRow = typeof cropPresets.$inferSelect
 export type CardRow = typeof cards.$inferSelect
 export type LoginAttemptRow = typeof loginAttempts.$inferSelect

@@ -94,6 +94,19 @@ export async function addCard(
   )
 }
 
+export async function resetPresets(page: Page): Promise<void> {
+  const payload = await page.evaluate(() => fetch('/api/crop-presets').then((response) => response.json()))
+  for (const preset of payload.presets as Array<{ id: string }>) {
+    await page.evaluate((id) => fetch(`/api/crop-presets/${id}`, { method: 'DELETE' }), preset.id)
+  }
+}
+
+export async function openPresetManager(page: Page): Promise<void> {
+  await page.getByRole('button', { name: '收藏匣菜单' }).click()
+  await page.getByRole('button', { name: '自定义裁切模式' }).click()
+  await expect(page.getByRole('dialog', { name: '自定义裁切模式' })).toBeVisible()
+}
+
 /** 生成一张“桌面上的斜放卡片”照片，用于测试自动识别与透视拉正 */
 export async function makeCardPhoto(page: Page, tiltDeg = -8): Promise<Buffer> {
   const dataUrl = await page.evaluate((tilt) => {

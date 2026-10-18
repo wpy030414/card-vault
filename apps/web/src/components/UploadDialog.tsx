@@ -3,7 +3,7 @@ import { api } from '../api'
 import type { Quad } from '../lib/detectCard'
 import { prepareImage, type PreparedImage } from '../lib/image'
 import { todayIso } from '../lib/format'
-import type { CardMeta, CropResult } from '@cardvault/shared/types'
+import type { CardMeta, CropPreset, CropResult } from '@cardvault/shared/types'
 import { CropEditor } from './CropEditor'
 import { HoloToggle } from './HoloToggle'
 import {
@@ -19,6 +19,7 @@ type Step = 'pick' | 'crop' | 'details'
 type Side = 'front' | 'back'
 
 interface UploadDialogProps {
+  presets: CropPreset[]
   onClose: () => void
   onCreated: (card: CardMeta) => void
   notify: (message: string, kind?: 'ok' | 'error') => void
@@ -26,11 +27,11 @@ interface UploadDialogProps {
 
 const STEP_META: Record<Step, { title: string; sub: string; index: number }> = {
   pick: { title: '收录新卡', sub: '选择卡面照片 · 正面必填，背面可选', index: 0 },
-  crop: { title: '拉正卡面', sub: '自动寻找卡片边缘 · 手动微调四角', index: 1 },
+  crop: { title: '拉正卡面', sub: '自动寻找卡片边缘 · 可套用自定义模式', index: 1 },
   details: { title: '题名入匣', sub: '写下一个名字与一段日期', index: 2 },
 }
 
-export function UploadDialog({ onClose, onCreated, notify }: UploadDialogProps) {
+export function UploadDialog({ presets, onClose, onCreated, notify }: UploadDialogProps) {
   const [step, setStep] = useState<Step>('pick')
   const [cropSide, setCropSide] = useState<Side>('front')
   const [front, setFront] = useState<PreparedImage | null>(null)
@@ -280,6 +281,7 @@ export function UploadDialog({ onClose, onCreated, notify }: UploadDialogProps) 
               prepared={cropPrepared}
               sideLabel={cropSide === 'front' ? '正面' : '背面'}
               initialQuad={cropSide === 'front' ? frontQuad : backQuad}
+              presets={presets}
               onBack={() => setStep('pick')}
               onConfirm={handleCrop}
             />
