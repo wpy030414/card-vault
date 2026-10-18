@@ -35,7 +35,6 @@ export interface AuthConfig {
 
 export type QrStatus = 'pending' | 'scanned' | 'authorized' | 'expired'
 
-
 export interface CardOrigin {
   centerX: number
   centerY: number

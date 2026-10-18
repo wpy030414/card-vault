@@ -15,7 +15,8 @@ export const sessions = sqliteTable(
   'sessions',
   {
     id: sqliteCol.text('id').primaryKey(),
-    userId: sqliteCol.text('user_id')
+    userId: sqliteCol
+      .text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: sqliteCol.epochMs('created_at').notNull(),
@@ -49,7 +50,8 @@ export const cards = sqliteTable(
   'cards',
   {
     id: sqliteCol.id(),
-    userId: sqliteCol.text('user_id')
+    userId: sqliteCol
+      .text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     title: sqliteCol.text('title').notNull(),
@@ -76,7 +78,8 @@ export const cropPresets = sqliteTable(
   'crop_presets',
   {
     id: sqliteCol.id(),
-    userId: sqliteCol.text('user_id')
+    userId: sqliteCol
+      .text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     name: sqliteCol.text('name').notNull(),

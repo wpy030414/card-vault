@@ -1,4 +1,12 @@
-import type { AuthConfig, CardMeta, CropPreset, CropQuad, CropResult, QrStatus, User } from '@cardvault/shared/types'
+import type {
+  AuthConfig,
+  CardMeta,
+  CropPreset,
+  CropQuad,
+  CropResult,
+  QrStatus,
+  User,
+} from '@cardvault/shared/types'
 
 export class ApiError extends Error {
   status: number
@@ -36,7 +44,9 @@ export const api = {
   me: () => request<{ user: User }>('/api/me'),
   authConfig: () => request<AuthConfig>('/api/auth/config'),
   createQqQr: () =>
-    request<{ token: string; image: string; expiresAt: number }>('/api/auth/qq/qr', { method: 'POST' }),
+    request<{ token: string; image: string; expiresAt: number }>('/api/auth/qq/qr', {
+      method: 'POST',
+    }),
   pollQqQr: (token: string) =>
     request<{ status: QrStatus; user?: User }>(`/api/auth/qq/qr/${encodeURIComponent(token)}`),
   devLogin: () => request<{ user: User }>('/api/auth/dev/login', { method: 'POST' }),
@@ -55,10 +65,14 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify(input),
     }),
-  deleteCard: (id: string) => request<void>(`/api/cards/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  deleteCard: (id: string) =>
+    request<void>(`/api/cards/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   cropPresets: () => request<{ presets: CropPreset[] }>('/api/crop-presets'),
   createCropPreset: (input: { name: string; quad: CropQuad }) =>
-    request<{ preset: CropPreset }>('/api/crop-presets', { method: 'POST', body: JSON.stringify(input) }),
+    request<{ preset: CropPreset }>('/api/crop-presets', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
   deleteCropPreset: (id: string) =>
     request<void>(`/api/crop-presets/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 }

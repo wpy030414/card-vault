@@ -3,14 +3,7 @@ import type { CropPreset, CropQuad } from '@cardvault/shared/types'
 import type { Quad } from '../lib/detectCard'
 import { prepareImage, type PreparedImage } from '../lib/image'
 import { CropEditor } from './CropEditor'
-import {
-  IconChevronLeft,
-  IconClose,
-  IconCrop,
-  IconImage,
-  IconPlus,
-  IconTrash,
-} from './icons'
+import { IconChevronLeft, IconClose, IconCrop, IconImage, IconPlus, IconTrash } from './icons'
 
 interface CropPresetDialogProps {
   presets: CropPreset[]
@@ -22,7 +15,13 @@ interface CropPresetDialogProps {
 
 type View = 'list' | 'create'
 
-export function CropPresetDialog({ presets, onClose, onCreate, onDelete, notify }: CropPresetDialogProps) {
+export function CropPresetDialog({
+  presets,
+  onClose,
+  onCreate,
+  onDelete,
+  notify,
+}: CropPresetDialogProps) {
   const [view, setView] = useState<View>('list')
   const [prepared, setPrepared] = useState<PreparedImage | null>(null)
   const [name, setName] = useState('')
@@ -119,12 +118,19 @@ export function CropPresetDialog({ presets, onClose, onCreate, onDelete, notify 
       className="sheet-backdrop"
       onClick={(event) => event.target === event.currentTarget && !pendingDelete && requestClose()}
     >
-      <section className="sheet panel corner-flourish preset-sheet" role="dialog" aria-modal="true" aria-label="自定义裁切模式">
+      <section
+        className="sheet panel corner-flourish preset-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label="自定义裁切模式"
+      >
         <header className="sheet-head">
           <div className="sheet-heading">
             <span className="sheet-title">自定义裁切模式</span>
             <span className="sheet-sub">
-              {view === 'create' ? '用一张示例照片定义四角的相对落点' : '同一拍摄位置下，四角落点可以直接复用'}
+              {view === 'create'
+                ? '用一张示例照片定义四角的相对落点'
+                : '同一拍摄位置下，四角落点可以直接复用'}
             </span>
           </div>
           <div className="sheet-head-actions">
@@ -148,7 +154,9 @@ export function CropPresetDialog({ presets, onClose, onCreate, onDelete, notify 
                   <IconCrop size={30} />
                 </span>
                 <p>还没有自定义裁切模式</p>
-                <span>用一张示例照片框出四角并保存；之后同类照片在裁切页一键落点，不用每次重新拖。</span>
+                <span>
+                  用一张示例照片框出四角并保存；之后同类照片在裁切页一键落点，不用每次重新拖。
+                </span>
               </div>
             ) : (
               <div className="preset-list">
@@ -249,7 +257,9 @@ export function CropPresetDialog({ presets, onClose, onCreate, onDelete, notify 
 
         {view === 'list' ? (
           <footer className="sheet-foot">
-            <span className="sheet-note">{presets.length} / 60 · 只保存四角落点，不保存照片本身</span>
+            <span className="sheet-note">
+              {presets.length} / 60 · 只保存四角落点，不保存照片本身
+            </span>
             <div className="sheet-foot-right">
               <button type="button" className="btn btn-gold" onClick={openCreate}>
                 <IconPlus size={14} />
@@ -263,16 +273,31 @@ export function CropPresetDialog({ presets, onClose, onCreate, onDelete, notify 
       {pendingDelete ? (
         <>
           <div className="confirm-scrim" onClick={() => setPendingDelete(null)} />
-          <div className="confirm-dialog" role="alertdialog" aria-modal="true" aria-label="删除裁切模式">
+          <div
+            className="confirm-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-label="删除裁切模式"
+          >
             <h3>删除这个模式？</h3>
             <p className="confirm-dialog-text">
               「{pendingDelete.name}」的四角落点会被移除，已经收入的卡片不受影响。
             </p>
             <div className="confirm-dialog-actions">
-              <button type="button" className="btn btn-ghost" autoFocus onClick={() => setPendingDelete(null)}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                autoFocus
+                onClick={() => setPendingDelete(null)}
+              >
                 取消
               </button>
-              <button type="button" className="btn btn-danger" onClick={() => void confirmDelete()} disabled={deleting}>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => void confirmDelete()}
+                disabled={deleting}
+              >
                 {deleting ? '删除中…' : '确认删除'}
               </button>
             </div>
@@ -295,8 +320,21 @@ function PresetThumb({ quad }: { quad: CropQuad }) {
     )
     .join(' ')
   return (
-    <svg className="preset-thumb" width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
-      <rect x="0.5" y="0.5" width={width - 1} height={height - 1} rx="7" className="preset-thumb-frame" />
+    <svg
+      className="preset-thumb"
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      aria-hidden="true"
+    >
+      <rect
+        x="0.5"
+        y="0.5"
+        width={width - 1}
+        height={height - 1}
+        rx="7"
+        className="preset-thumb-frame"
+      />
       <polygon points={points} className="preset-thumb-quad" />
     </svg>
   )

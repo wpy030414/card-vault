@@ -5,10 +5,10 @@
 仓库采用 pnpm workspace，分为 `apps/server`、`apps/web` 与 `packages/shared` 三个包。
 
 ```
-浏览器（Vite 8 + React 19）
+浏览器（React 19，vp build 产物）
   │  /api/*、/media/*
   ▼
-Node HTTP 服务（node:http，Node 26 直接执行 TS）
+Hono（@hono/node-server，开发时 Node 直接执行 TS，生产由 vp pack 打包）
   ├─ auth.ts      QQ 扫码 / 会话 / 开发登录
   ├─ cards.ts     卡片与图片 BLOB
   ├─ http.ts      JSON、Cookie、限流辅助
@@ -19,6 +19,10 @@ Node HTTP 服务（node:http，Node 26 直接执行 TS）
 ```
 
 开发时 Vite 监听 `0.0.0.0:5173`，把 `/api`、`/media` 代理到 API；生产时同一个 Node 进程同时提供 `apps/server/dist/client` 静态资源与接口。
+
+路由由 Hono 声明式注册，安全响应头、错误映射、限流、静态资源与 SPA 回退集中在 `index.ts` 与 `http.ts`；认证与业务逻辑仍保持独立模块。
+
+构建与检查由 vp（Vite+）统一驱动：前端 `vp dev` / `vp build`，服务端 `vp pack`（tsdown，ESM，`dist/index.js`），`vp check` 一次完成格式化、lint 与类型检查。`@cardvault/shared` 以 TS 源码直引，并由 `deps.alwaysBundle` 的正则匹配把 `@cardvault/shared/*` 全部内联，生产 bundle 自包含；`pnpm-workspace.yaml` 的 catalog 把 `vite` 固定到 `@voidzero-dev/vite-plus-core`，保证 `@vitejs/plugin-react` 的 peer 解析一致。
 
 ## 2. 数据模型
 

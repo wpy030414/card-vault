@@ -11,7 +11,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "typecheck": "pnpm -r typecheck && tsc --noEmit -p tsconfig.e2e.json",
-    "db:generate": "drizzle-kit generate --config drizzle.sqlite.config.ts"
+    "db:generate": "drizzle-kit generate --config drizzle.sqlite.config.ts",
+    "check": "pnpm -r --workspace-concurrency=1 check"
   },
   "devDependencies": {
     "@homurajs/db": "^26.10.15",
@@ -20,6 +21,7 @@
     "concurrently": "^10.0.6",
     "drizzle-kit": "1.0.0-rc.4",
     "typescript": "^5.9.3",
+    "vite-plus": "catalog:",
     "wait-on": "^9.1.0"
   },
   "engines": {

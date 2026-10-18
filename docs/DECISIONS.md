@@ -6,6 +6,8 @@
 
 ## D2. Node 原生 HTTP，不引入后端框架
 
+> 已被 D20 取代：后端迁移到 Hono。
+
 路由数量有限（认证 6 条、卡片 4 条、裁切模式 3 条、图片 2 条），用 `node:http` 即可保持依赖最小、启动最快，也便于直接阅读请求链路。代价是需要自己实现 JSON 解析、Cookie 与静态资源服务，这些集中在 `apps/server/src/http.ts` 与 `apps/server/src/index.ts`。
 
 ## D3. `@homurajs/db` + Drizzle + `node:sqlite`
@@ -63,7 +65,7 @@ E2E 使用真实构建、真实 Node 服务、真实 SQLite 与合成卡面照�
 
 ## D15. pnpm workspace 目录形式
 
-为了与 node-mono-starter 的工程形式对齐，仓库改为 `apps/server`、`apps/web`、`packages/shared` 三包：根目录只保留工作区脚本、Playwright 与共享配置，前后端各自声明依赖。`@cardvault/shared` 以 TS 源码直引，由 Vite 解析、由 tsup 内联，避免额外的构建步骤。服务端开发时仍直接运行 `src/index.ts`（Node 26 原生剥离类型），生产用 tsup 产出 `apps/server/dist/index.js`；`PACKAGE_ROOT` 由模块位置推导，源码与 bundle 共用同一套 `.env`、数据目录与迁移路径。技术栈保持 D2/D11 的取舍不变。
+为了与 node-mono-starter 的工程形式对齐，仓库改为 `apps/server`、`apps/web`、`packages/shared` 三包：根目录只保留工作区脚本、Playwright 与共享配置，前后端各自声明依赖。`@cardvault/shared` 以 TS 源码直引，由 vp build 解析、由 vp pack 内联，避免额外的构建步骤。服务端开发时仍直接运行 `src/index.ts`（Node 24+ 原生剥离类型），生产用 vp pack 产出 `apps/server/dist/index.js`；`PACKAGE_ROOT` 由模块位置推导，源码与 bundle 共用同一套 `.env`、数据目录与迁移路径。技术栈保持 D2/D11 的取舍不变。
 
 ## D16. 未发版前的迁移合并
 
@@ -76,3 +78,11 @@ E2E 使用真实构建、真实 Node 服务、真实 SQLite 与合成卡面照�
 ## D18. 自定义裁切模式只保存归一化四角
 
 用户有大量同一拍摄位置、同一裁切策略的照片，每次重复拖四角不现实。模式保存四个角的归一化坐标（`0..1`）而不是示例照片或像素坐标：像素坐标绑定图片尺寸，换一张分辨率不同的照片就失效；保存照片则让模式变成第二个图片库，备份体积和权限面都扩大。归一化坐标可以直接跨宽高比复用，正好对应用户所说的「四个落点在图里的相对位置」。模式存在 `crop_presets` 表并随用户级联删除，前端在「整图」右侧列成快捷按钮，点击即替换四角；手动拖动或重新识别会取消当前模式的高亮，避免误以为仍在套用。
+
+## D19. 构建、检查与格式化统一交给 vp（Vite+）
+
+原先 `vite`、`tsup`、`tsc` 三套工具各自维护配置，脚本还要手工组合。改用 vp 1.3 后：前端 `vp dev` / `vp build`，服务端 `vp pack`（tsdown）产出 ESM 的 `apps/server/dist/index.js`，`vp check` 一次完成格式化、lint 与类型检查，根目录 `vite.config.ts` 承载 workspace 级 fmt/lint 规则。`@cardvault/shared` 用正则匹配 `deps.alwaysBundle`，确保 `@cardvault/shared/constants` 这类子路径也被内联，生产 bundle 自包含；`outExtensions` 固定为 `.js`，与 `start` 脚本一致。开发时服务端仍用 `node --watch src/index.ts`（Node 原生剥离类型），不额外引入 tsx；`package.json` 不声明 `packageManager`，由 vp 依据 lockfile 代理 pnpm。drizzle 生成的迁移快照通过 `apps/server/.prettierignore` 排除，避免 `vp check --fix` 改写生成物。
+
+## D20. 后端迁移到 Hono（取代 D2）
+
+node-app-starter 的 monorepo 默认后端是 Hono，用户也明确要求按指南采用。迁移只替换 HTTP 层：路由、路径参数、查询参数、错误处理与静态资源由 Hono 组织，`@hono/node-server` 的 `serve` 负责监听；`HttpError` 通过 `app.onError` 统一映射为原样的 JSON 错误体。认证、限流、卡面解码、SQLite 与迁移逻辑不动，业务接口、Cookie、状态码与 E2E 契约全部保持，14 项 E2E 在迁移后仍通过。`node:http` 只保留 `clientError` 兜底与 `Server` 类型。这样既满足指南的框架默认值，也不改变 D3/D4/D5 等存储与交互决策。

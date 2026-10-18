@@ -16,7 +16,13 @@ const DUST = [
   { left: '8%', top: '48%', dur: '14s', delay: '3.8s', drift: '36px' },
 ]
 
-export function LoginScreen({ onAuthed, notice }: { onAuthed: (user: User) => void; notice: string | null }) {
+export function LoginScreen({
+  onAuthed,
+  notice,
+}: {
+  onAuthed: (user: User) => void
+  notice: string | null
+}) {
   const [config, setConfig] = useState<AuthConfig | null>(null)
   const [configError, setConfigError] = useState('')
 
@@ -182,7 +188,9 @@ function QrLoginPanel({
       <p className="qr-title">使用 QQ 登录 CardVault</p>
 
       <div className={`qr-frame${phase === 'loading' ? ' is-busy' : ''}`}>
-        {qr ? <img className="qq-qr-image" src={qr.image} alt="QQ 登录二维码" draggable={false} /> : null}
+        {qr ? (
+          <img className="qq-qr-image" src={qr.image} alt="QQ 登录二维码" draggable={false} />
+        ) : null}
         {phase === 'loading' ? <span className="qr-skeleton">正在向 QQ 取码…</span> : null}
         {phase !== 'loading' && phase !== 'expired' && phase !== 'error' ? (
           <span className="qr-scanline" aria-hidden="true" />
@@ -201,7 +209,12 @@ function QrLoginPanel({
           </button>
         ) : null}
         {config?.devAuth ? (
-          <button type="button" className="btn qr-dev-link" disabled={devBusy} onClick={() => void devLogin()}>
+          <button
+            type="button"
+            className="btn qr-dev-link"
+            disabled={devBusy}
+            onClick={() => void devLogin()}
+          >
             {devBusy ? '正在开启…' : '开发模式直接进入'}
           </button>
         ) : null}

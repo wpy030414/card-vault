@@ -8,9 +8,11 @@
     "./constants": "./src/constants.ts"
   },
   "scripts": {
+    "check": "vp check",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite-plus": "catalog:"
   }
 }

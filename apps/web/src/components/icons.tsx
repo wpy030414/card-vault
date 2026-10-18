@@ -129,7 +129,10 @@ export function IconTap(props: IconProps) {
     <svg {...base(props)}>
       <circle cx="12" cy="12" r="3.2" />
       <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
-      <path d="M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1" opacity=".55" />
+      <path
+        d="M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"
+        opacity=".55"
+      />
     </svg>
   )
 }

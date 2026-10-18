@@ -9,5 +9,5 @@
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["src", "tsup.config.ts"]
+  "include": ["src", "vite.config.ts"]
 }

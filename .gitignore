@@ -10,3 +10,13 @@ blob-report
 .env
 .env.*
 !.env.example
+
+# 缓存
+.cache/
+
+# IDE
+.vscode/
+.idea/
+
+# 系统文件
+Thumbs.db

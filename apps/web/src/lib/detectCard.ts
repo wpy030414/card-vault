@@ -64,7 +64,11 @@ function percentileOf(magnitude: Float32Array, ratio: number): number {
   return 1
 }
 
-function sobel(gray: Float32Array, width: number, height: number): { magnitude: Float32Array; max: number } {
+function sobel(
+  gray: Float32Array,
+  width: number,
+  height: number,
+): { magnitude: Float32Array; max: number } {
   const magnitude = new Float32Array(width * height)
   let max = 0
   for (let y = 0; y < height; y++) {
@@ -122,13 +126,15 @@ function convexHull(points: HullPoint[]): HullPoint[] {
     (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
   const lower: HullPoint[] = []
   for (const p of points) {
-    while (lower.length >= 2 && cross(lower[lower.length - 2]!, lower[lower.length - 1]!, p) <= 0) lower.pop()
+    while (lower.length >= 2 && cross(lower[lower.length - 2]!, lower[lower.length - 1]!, p) <= 0)
+      lower.pop()
     lower.push(p)
   }
   const upper: HullPoint[] = []
   for (let i = points.length - 1; i >= 0; i--) {
     const p = points[i]!
-    while (upper.length >= 2 && cross(upper[upper.length - 2]!, upper[upper.length - 1]!, p) <= 0) upper.pop()
+    while (upper.length >= 2 && cross(upper[upper.length - 2]!, upper[upper.length - 1]!, p) <= 0)
+      upper.pop()
     upper.push(p)
   }
   lower.pop()
@@ -138,8 +144,17 @@ function convexHull(points: HullPoint[]): HullPoint[] {
 
 function minAreaRect(hull: HullPoint[]): RectCandidate | null {
   if (hull.length < 3) return null
-  let best: { area: number; ux: number; uy: number; vx: number; vy: number; minU: number; maxU: number; minV: number; maxV: number } | null =
-    null
+  let best: {
+    area: number
+    ux: number
+    uy: number
+    vx: number
+    vy: number
+    minU: number
+    maxU: number
+    minV: number
+    maxV: number
+  } | null = null
   for (let i = 0; i < hull.length; i++) {
     const a = hull[i]!
     const b = hull[(i + 1) % hull.length]!
@@ -198,7 +213,12 @@ function orderCorners(corners: HullPoint[]): Quad {
 }
 
 /** 沿矩形四条边取样，统计附近存在边缘像素的比例 */
-function perimeterCoverage(edges: Uint8Array, width: number, height: number, corners: HullPoint[]): number {
+function perimeterCoverage(
+  edges: Uint8Array,
+  width: number,
+  height: number,
+  corners: HullPoint[],
+): number {
   const samples = 22
   const skip = 0.1
   let hit = 0
@@ -320,6 +340,9 @@ export function detectCardQuad(image: ImageDataLike): DetectionResult {
     x: Math.min(1, Math.max(0, p.x / width)),
     y: Math.min(1, Math.max(0, p.y / height)),
   })) as Quad
-  const confidence = Math.min(0.99, 0.3 + best.coverage * 0.55 + Math.min(0.6, best.areaRatio) * 0.25)
+  const confidence = Math.min(
+    0.99,
+    0.3 + best.coverage * 0.55 + Math.min(0.6, best.areaRatio) * 0.25,
+  )
   return { quad, confidence, areaRatio: best.areaRatio, auto: true }
 }

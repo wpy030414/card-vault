@@ -56,7 +56,13 @@ interface RingStageProps {
   onOpenUpload: () => void
 }
 
-export function RingStage({ cards, resetKey, isExamining, onExamine, onOpenUpload }: RingStageProps) {
+export function RingStage({
+  cards,
+  resetKey,
+  isExamining,
+  onExamine,
+  onOpenUpload,
+}: RingStageProps) {
   const stageRef = useRef<HTMLDivElement>(null)
   const worldRef = useRef<HTMLDivElement>(null)
   const deckRef = useRef<HTMLDivElement>(null)
@@ -122,7 +128,10 @@ export function RingStage({ cards, resetKey, isExamining, onExamine, onOpenUploa
       // 槽位边界落在第一张/最后一张牌外半格，静止时边缘牌是完整的，
       // 离开时才沿着弧线继续滑出并淡出
       const firstSlot = slotCount % 2 === 1 ? 0 : 0.5
-      const edgeDistance = Math.min(slotPos - (firstSlot - 0.5), firstSlot + slotCount - 0.5 - slotPos)
+      const edgeDistance = Math.min(
+        slotPos - (firstSlot - 0.5),
+        firstSlot + slotCount - 0.5 - slotPos,
+      )
       const presence = smoothstep(0, 0.5, Math.max(0, edgeDistance))
       const shown = presence > 0.002
 
@@ -214,13 +223,18 @@ export function RingStage({ cards, resetKey, isExamining, onExamine, onOpenUploa
       const slotCount = Math.max(1, Math.min(count || 1, maxSlots))
       // 牌要大、要离人近：可视槽位少而大，整扇牌铺满屏幕
       const targetSpan = narrow ? 30 : 96
-      const spreadStep = count > 1 ? targetSpan / Math.max(1, Math.min(count, maxSlots) - 1) : targetSpan
+      const spreadStep =
+        count > 1 ? targetSpan / Math.max(1, Math.min(count, maxSlots) - 1) : targetSpan
       const step = count <= 1 ? 360 : clamp(spreadStep, narrow ? 10 : 14, narrow ? 18 : 26)
       // 圆心略低于屏幕底部，弧线从下方把大牌托起来
       const pivotY = Math.round(rect.height * 0.97)
       const topMargin = narrow ? 180 : 140
       const radius = Math.round(
-        clamp(pivotY - topMargin - (cardW * 1.4) / 2, cardW * 0.82, Math.max(cardW * 0.82, rect.height * 0.82)),
+        clamp(
+          pivotY - topMargin - (cardW * 1.4) / 2,
+          cardW * 0.82,
+          Math.max(cardW * 0.82, rect.height * 0.82),
+        ),
       )
       setLayout({ step, radius, pivotY, slotCount })
     }
@@ -495,13 +509,22 @@ export function RingStage({ cards, resetKey, isExamining, onExamine, onOpenUploa
           <div className="empty-state">
             <div className="empty-plaque">
               <div className="empty-icon" aria-hidden="true">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <svg
+                  width="34"
+                  height="34"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
                   <rect x="3.5" y="3.5" width="17" height="17" rx="2" strokeDasharray="3 3" />
                   <path d="M12 8v8M8 12h8" strokeLinecap="round" />
                 </svg>
               </div>
               <h2 className="empty-title">匣中尚无藏品</h2>
-              <p className="empty-text">收入第一张卡片吧。可以只拍正面，也可以正反两面一起收进来。</p>
+              <p className="empty-text">
+                收入第一张卡片吧。可以只拍正面，也可以正反两面一起收进来。
+              </p>
               <button type="button" className="btn btn-gold" onClick={onOpenUpload}>
                 <IconPlus size={15} /> 收录第一张卡
               </button>

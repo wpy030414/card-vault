@@ -9,7 +9,10 @@ interface ExamineViewProps {
   card: CardMeta
   origin?: CardOrigin | null
   onClose: () => void
-  onEdit: (card: CardMeta, patch: { title: string; cardDate: string; holo: boolean }) => Promise<void>
+  onEdit: (
+    card: CardMeta,
+    patch: { title: string; cardDate: string; holo: boolean },
+  ) => Promise<void>
   onDelete: (card: CardMeta) => void
 }
 
@@ -245,7 +248,12 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
         </button>
         {menuOpen ? (
           <>
-            <button type="button" className="examine-menu-scrim" aria-label="关闭菜单" onClick={() => setMenuOpen(false)} />
+            <button
+              type="button"
+              className="examine-menu-scrim"
+              aria-label="关闭菜单"
+              onClick={() => setMenuOpen(false)}
+            />
             <div className="examine-menu" role="menu">
               <button type="button" role="menuitem" onClick={openEdit}>
                 <IconEdit size={15} />
@@ -283,7 +291,8 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
               ref={flipRef}
               className={`examine-flip${flipped ? ' is-flipped' : ''}`}
               onAnimationEnd={(event) => {
-                if (event.animationName === 'card-nudge') event.currentTarget.classList.remove('is-nudging')
+                if (event.animationName === 'card-nudge')
+                  event.currentTarget.classList.remove('is-nudging')
               }}
               onPointerDown={(event) => {
                 pointerDown.current = { x: event.clientX, y: event.clientY }
@@ -296,7 +305,8 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
                 maybeRequestMotion()
                 // 触摸端打开端详的那一下会产生一个同坐标的合成 click，别让它顺手翻面
                 if (performance.now() - openedAt.current < 380) return
-                if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) return
+                if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10)
+                  return
                 flip()
               }}
               role="img"
@@ -344,7 +354,9 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
         </div>
 
         <div className="examine-meta">
-          <span className="examine-side-label">{flipped ? '背面' : card.back ? '正面 · 轻点翻面' : '正面'}</span>
+          <span className="examine-side-label">
+            {flipped ? '背面' : card.back ? '正面 · 轻点翻面' : '正面'}
+          </span>
           <h2 className="examine-title">{card.title}</h2>
           <p className="examine-date">{formatDate(card.cardDate)}</p>
         </div>
@@ -357,7 +369,11 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
             <h3>删除这张卡？</h3>
             <p className="examine-dialog-text">删除后无法恢复。</p>
             <div className="examine-dialog-actions">
-              <button type="button" className="btn btn-ghost" onClick={() => setConfirmDelete(false)}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setConfirmDelete(false)}
+              >
                 取消
               </button>
               <button type="button" className="btn btn-danger" onClick={handleDelete}>
@@ -384,7 +400,11 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
             </label>
             <label>
               日期
-              <input type="date" value={editDate} onChange={(event) => setEditDate(event.target.value)} />
+              <input
+                type="date"
+                value={editDate}
+                onChange={(event) => setEditDate(event.target.value)}
+              />
             </label>
             <HoloToggle checked={editHolo} onChange={setEditHolo} />
             {editError ? <p className="examine-edit-error">{editError}</p> : null}
@@ -399,7 +419,6 @@ export function ExamineView({ card, origin, onClose, onEdit, onDelete }: Examine
           </form>
         </>
       ) : null}
-
     </div>
   )
 }

@@ -46,7 +46,11 @@ function sniffMime(buf: Buffer): string | null {
     buf[7] === 0x0a
   )
     return 'image/png'
-  if (buf.length >= 12 && buf.subarray(0, 4).toString('latin1') === 'RIFF' && buf.subarray(8, 12).toString('latin1') === 'WEBP')
+  if (
+    buf.length >= 12 &&
+    buf.subarray(0, 4).toString('latin1') === 'RIFF' &&
+    buf.subarray(8, 12).toString('latin1') === 'WEBP'
+  )
     return 'image/webp'
   return null
 }
@@ -56,33 +60,48 @@ export function decodeImage(raw: unknown, label: string): DecodedImage {
   const obj = raw as Record<string, unknown>
   const dataUrl = typeof obj.dataUrl === 'string' ? obj.dataUrl : ''
   const match = DATA_URL_RE.exec(dataUrl)
-  if (!match) throw new HttpError(400, `${label}必须是 JPEG/PNG/WebP 的 base64 data URL`, 'invalid_image')
+  if (!match)
+    throw new HttpError(400, `${label}必须是 JPEG/PNG/WebP 的 base64 data URL`, 'invalid_image')
   const data = Buffer.from(match[2]!, 'base64')
   if (data.byteLength === 0) throw new HttpError(400, `${label}内容为空`, 'invalid_image')
   if (data.byteLength > config.maxImageBytes) {
-    throw new HttpError(413, `${label}超过 ${Math.round(config.maxImageBytes / 1024 / 1024)}MB`, 'image_too_large')
+    throw new HttpError(
+      413,
+      `${label}超过 ${Math.round(config.maxImageBytes / 1024 / 1024)}MB`,
+      'image_too_large',
+    )
   }
   const sniffed = sniffMime(data)
   if (!sniffed) throw new HttpError(400, `${label}文件头不是受支持的图片格式`, 'invalid_image')
   const width = Number(obj.width)
   const height = Number(obj.height)
-  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > MAX_SIDE || height > MAX_SIDE) {
+  if (
+    !Number.isInteger(width) ||
+    !Number.isInteger(height) ||
+    width < 1 ||
+    height < 1 ||
+    width > MAX_SIDE ||
+    height > MAX_SIDE
+  ) {
     throw new HttpError(400, `${label}尺寸不合法`, 'invalid_image')
   }
   return { mime: sniffed, data, width, height }
 }
 
-function metaOf(row: {
-  id: string
-  title: string
-  cardDate: string
-  createdAt: number
-  holo: number
-  frontWidth: number
-  frontHeight: number
-  backWidth: number | null
-  backHeight: number | null
-}, hasBack: boolean): CardMeta {
+function metaOf(
+  row: {
+    id: string
+    title: string
+    cardDate: string
+    createdAt: number
+    holo: number
+    frontWidth: number
+    frontHeight: number
+    backWidth: number | null
+    backHeight: number | null
+  },
+  hasBack: boolean,
+): CardMeta {
   return {
     id: row.id,
     title: row.title,
@@ -133,22 +152,24 @@ export async function createCard(userId: string, body: Record<string, unknown>):
   const id = randomUUID()
   const now = Date.now()
 
-  await db().insert(cards).values({
-    id,
-    userId,
-    title,
-    cardDate,
-    holo: holo ? 1 : 0,
-    createdAt: now,
-    frontMime: front.mime,
-    frontWidth: front.width,
-    frontHeight: front.height,
-    frontData: front.data,
-    backMime: back?.mime ?? null,
-    backWidth: back?.width ?? null,
-    backHeight: back?.height ?? null,
-    backData: back?.data ?? null,
-  })
+  await db()
+    .insert(cards)
+    .values({
+      id,
+      userId,
+      title,
+      cardDate,
+      holo: holo ? 1 : 0,
+      createdAt: now,
+      frontMime: front.mime,
+      frontWidth: front.width,
+      frontHeight: front.height,
+      frontData: front.data,
+      backMime: back?.mime ?? null,
+      backWidth: back?.width ?? null,
+      backHeight: back?.height ?? null,
+      backData: back?.data ?? null,
+    })
 
   return {
     id,
@@ -208,7 +229,11 @@ export interface CardImage {
   etag: string
 }
 
-export async function getCardImage(userId: string, cardId: string, side: string): Promise<CardImage> {
+export async function getCardImage(
+  userId: string,
+  cardId: string,
+  side: string,
+): Promise<CardImage> {
   if (side !== 'front' && side !== 'back') throw new HttpError(404, '图片不存在', 'not_found')
   const rows = await db()
     .select({

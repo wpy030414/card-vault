@@ -19,7 +19,12 @@ function parseQuad(raw: unknown): CropQuad {
   const points: CropPoint[] = raw.map((rawPoint) => {
     if (!rawPoint || typeof rawPoint !== 'object') throw invalidQuad('角点格式不正确')
     const { x, y } = rawPoint as Record<string, unknown>
-    if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)) {
+    if (
+      typeof x !== 'number' ||
+      typeof y !== 'number' ||
+      !Number.isFinite(x) ||
+      !Number.isFinite(y)
+    ) {
       throw invalidQuad('角点必须是有限的数字坐标')
     }
     if (x < 0 || x > 1 || y < 0 || y > 1) throw invalidQuad('角点必须落在图片范围内')
@@ -33,7 +38,8 @@ function parseQuad(raw: unknown): CropQuad {
     const next = points[(index + 1) % points.length]!
     const after = points[(index + 2) % points.length]!
     area += current.x * next.y - next.x * current.y
-    const cross = (next.x - current.x) * (after.y - next.y) - (next.y - current.y) * (after.x - next.x)
+    const cross =
+      (next.x - current.x) * (after.y - next.y) - (next.y - current.y) * (after.x - next.x)
     if (Math.abs(cross) < 1e-9) continue
     const currentSign = cross > 0 ? 1 : -1
     if (sign === 0) sign = currentSign
@@ -62,14 +68,22 @@ function metaOf(row: { id: string; name: string; quad: string; createdAt: number
 
 export async function listCropPresets(userId: string): Promise<CropPreset[]> {
   const rows = await db()
-    .select({ id: cropPresets.id, name: cropPresets.name, quad: cropPresets.quad, createdAt: cropPresets.createdAt })
+    .select({
+      id: cropPresets.id,
+      name: cropPresets.name,
+      quad: cropPresets.quad,
+      createdAt: cropPresets.createdAt,
+    })
     .from(cropPresets)
     .where(eq(cropPresets.userId, userId))
     .orderBy(desc(cropPresets.createdAt), desc(cropPresets.id))
   return rows.map(metaOf)
 }
 
-export async function createCropPreset(userId: string, body: Record<string, unknown>): Promise<CropPreset> {
+export async function createCropPreset(
+  userId: string,
+  body: Record<string, unknown>,
+): Promise<CropPreset> {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   if (!name) throw new HttpError(400, '请填写模式名称', 'invalid_name')
   if (Array.from(name).length > MAX_NAME_LENGTH) {
@@ -77,7 +91,10 @@ export async function createCropPreset(userId: string, body: Record<string, unkn
   }
   const quad = parseQuad(body.quad)
 
-  const existing = await db().select({ id: cropPresets.id }).from(cropPresets).where(eq(cropPresets.userId, userId))
+  const existing = await db()
+    .select({ id: cropPresets.id })
+    .from(cropPresets)
+    .where(eq(cropPresets.userId, userId))
   if (existing.length >= MAX_PRESETS) {
     throw new HttpError(400, `裁切模式最多保存 ${MAX_PRESETS} 个`, 'too_many_presets')
   }

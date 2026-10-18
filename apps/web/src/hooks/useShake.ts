@@ -69,8 +69,10 @@ export function useMotionSensors(active: boolean, handlers: MotionHandlers) {
         ? (window.DeviceOrientationEvent as unknown as OrientationEventIOS)
         : null
     const requests: Array<Promise<'granted' | 'denied'>> = []
-    if (typeof motionCtor?.requestPermission === 'function') requests.push(motionCtor.requestPermission())
-    if (typeof orientationCtor?.requestPermission === 'function') requests.push(orientationCtor.requestPermission())
+    if (typeof motionCtor?.requestPermission === 'function')
+      requests.push(motionCtor.requestPermission())
+    if (typeof orientationCtor?.requestPermission === 'function')
+      requests.push(orientationCtor.requestPermission())
     if (requests.length === 0) {
       setPermission('granted')
       return
@@ -90,7 +92,9 @@ export function useMotionSensors(active: boolean, handlers: MotionHandlers) {
 
     const motionHandler = (event: DeviceMotionEvent) => {
       const raw =
-        event.acceleration && event.acceleration.x != null ? event.acceleration : event.accelerationIncludingGravity
+        event.acceleration && event.acceleration.x != null
+          ? event.acceleration
+          : event.accelerationIncludingGravity
       if (!raw || raw.x == null || raw.y == null || raw.z == null) return
       const now = performance.now()
       const sample = { x: raw.x, y: raw.y, z: raw.z, t: now }
@@ -98,7 +102,9 @@ export function useMotionSensors(active: boolean, handlers: MotionHandlers) {
       lastSample.current = sample
       if (!previous) return
       const delta =
-        Math.abs(sample.x - previous.x) + Math.abs(sample.y - previous.y) + Math.abs(sample.z - previous.z)
+        Math.abs(sample.x - previous.x) +
+        Math.abs(sample.y - previous.y) +
+        Math.abs(sample.z - previous.z)
       const threshold = event.acceleration && event.acceleration.x != null ? 13 : 26
       if (delta >= threshold) {
         lastSpike.current = now
@@ -106,7 +112,11 @@ export function useMotionSensors(active: boolean, handlers: MotionHandlers) {
           lastShake.current = now
           shakeRef.current()
         }
-      } else if (now - lastSpike.current < 420 && delta >= threshold * 0.55 && now - lastShake.current > 850) {
+      } else if (
+        now - lastSpike.current < 420 &&
+        delta >= threshold * 0.55 &&
+        now - lastShake.current > 850
+      ) {
         lastShake.current = now
         shakeRef.current()
       }
@@ -123,7 +133,10 @@ export function useMotionSensors(active: boolean, handlers: MotionHandlers) {
       }
       const previous = lastTilt.current
       const smoothed = previous
-        ? { x: previous.x + (next.x - previous.x) * 0.38, y: previous.y + (next.y - previous.y) * 0.38 }
+        ? {
+            x: previous.x + (next.x - previous.x) * 0.38,
+            y: previous.y + (next.y - previous.y) * 0.38,
+          }
         : next
       lastTilt.current = smoothed
       tiltRef.current?.(smoothed)

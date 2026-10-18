@@ -1,0 +1,36 @@
+# 由 xat:upload-repo 在远程部署目录中按顺序执行。
+# 每个 step 都是独立的 bash 脚本，因此每个 step 都要自行加载 vp 环境。
+steps:
+  - name: Install
+    run: |
+      set -e
+      export NPM_CONFIG_REGISTRY="https://registry.npmmirror.com"
+      if ! command -v vp >/dev/null 2>&1; then
+        echo "[install] 未找到 vp，正在安装 Vite+…"
+        VP_NODE_MANAGER=no curl -fsSL https://vite.plus | bash
+      fi
+      . "$HOME/.config/vite-plus/env"
+      echo "[install] node $(node -v) / pnpm $(pnpm -v)"
+      vp install
+
+  - name: Build
+    run: |
+      set -e
+      . "$HOME/.config/vite-plus/env"
+      avail_kb=$(awk '/MemAvailable/ {print $2}' /proc/meminfo)
+      if [ "${avail_kb:-0}" -lt 4194304 ]; then
+        export NODE_OPTIONS='--max-old-space-size=1024'
+      fi
+      [ -f .env ] || echo "[build] 警告：未找到 .env，将使用默认配置"
+      pnpm build
+
+  - name: Run
+    run: |
+      set -e
+      . "$HOME/.config/vite-plus/env"
+      if pm2 jlist 2>/dev/null | grep -q '"name":"cardvault"'; then
+        echo "[run] 删除同名 pm2 服务 cardvault"
+        pm2 delete cardvault
+      fi
+      pm2 start 'pnpm start' --name cardvault
+      pm2 save

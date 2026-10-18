@@ -18,7 +18,9 @@
 .examine.is-deleting .examine-card-shell {
   opacity: 0;
   transform: perspective(1200px) translateY(30px) scale(0.82) rotateX(8deg);
-  transition: transform 0.5s ease-in, opacity 0.42s ease-in;
+  transition:
+    transform 0.5s ease-in,
+    opacity 0.42s ease-in;
 }
 
 .examine.is-deleting .examine-meta {
@@ -63,7 +65,10 @@
   background: rgba(255, 248, 249, 0.82);
   backdrop-filter: blur(8px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: transform 0.3s, background 0.3s, border-color 0.3s;
+  transition:
+    transform 0.3s,
+    background 0.3s,
+    border-color 0.3s;
 }
 
 .examine-close {
@@ -146,7 +151,9 @@
   letter-spacing: 0.08em;
   color: #6e4248;
   text-align: left;
-  transition: background 0.26s, color 0.26s;
+  transition:
+    background 0.26s,
+    color 0.26s;
 }
 
 .examine-menu button:hover {
@@ -248,7 +255,7 @@
   box-shadow: 0 0 0 3px rgba(228, 151, 158, 0.14);
 }
 
-.examine-dialog input[type="date"] {
+.examine-dialog input[type='date'] {
   width: 100%;
   min-width: 0;
   max-width: 100%;
@@ -401,13 +408,22 @@
   place-items: center;
   background:
     radial-gradient(circle at 50% 44%, rgba(255, 247, 249, 0.34) 0 6%, transparent 7%),
-    repeating-conic-gradient(from 0deg at 50% 44%, rgba(255, 246, 248, 0.17) 0deg 1.3deg, transparent 1.3deg 7deg),
-    repeating-radial-gradient(circle at 50% 44%, transparent 0 8.5%, rgba(255, 246, 248, 0.09) 8.5% 9%, transparent 9% 17%),
+    repeating-conic-gradient(
+      from 0deg at 50% 44%,
+      rgba(255, 246, 248, 0.17) 0deg 1.3deg,
+      transparent 1.3deg 7deg
+    ),
+    repeating-radial-gradient(
+      circle at 50% 44%,
+      transparent 0 8.5%,
+      rgba(255, 246, 248, 0.09) 8.5% 9%,
+      transparent 9% 17%
+    ),
     linear-gradient(150deg, #e7a3aa 0%, #d88c94 55%, #c57a84 100%);
 }
 
 .examine-face.back::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 7%;
   border: 1px solid rgba(255, 246, 248, 0.42);
@@ -483,12 +499,20 @@
       rgba(148, 158, 255, 0.6) 10.8% 12.6%,
       transparent 15% 21%
     );
-  background-size: 100% 100%, 160% 160%, 240% 240%;
-  background-position: center, var(--hx) var(--hy), var(--hx) var(--hy);
+  background-size:
+    100% 100%,
+    160% 160%,
+    240% 240%;
+  background-position:
+    center,
+    var(--hx) var(--hy),
+    var(--hx) var(--hy);
   filter: blur(2px) saturate(1.08) hue-rotate(var(--hue));
   -webkit-mask-image: repeating-linear-gradient(66deg, #000 0 1.6%, transparent 1.6% 5%);
   mask-image: repeating-linear-gradient(66deg, #000 0 1.6%, transparent 1.6% 5%);
-  transition: opacity 0.5s ease, filter 0.4s linear;
+  transition:
+    opacity 0.5s ease,
+    filter 0.4s linear;
 }
 
 .holo-glare {
@@ -515,11 +539,17 @@
 
 @keyframes holo-drift {
   from {
-    background-position: center, center, 0% 50%;
+    background-position:
+      center,
+      center,
+      0% 50%;
     filter: blur(2px) saturate(1.08) hue-rotate(0deg);
   }
   to {
-    background-position: center, center, 200% 50%;
+    background-position:
+      center,
+      center,
+      200% 50%;
     filter: blur(2px) saturate(1.08) hue-rotate(26deg);
   }
 }
@@ -582,19 +612,20 @@
 @keyframes holo-wobble {
   0%,
   100% {
-    transform: perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(0deg) skewY(0deg) scale(1);
+    transform: perspective(1200px) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(0deg) skewY(0deg)
+      scale(1);
   }
   22% {
-    transform: perspective(1200px) rotateX(calc(var(--rx) + 2.4deg)) rotateY(calc(var(--ry) - 3.2deg)) rotateZ(-1.2deg)
-      skewY(0.7deg) scale(1.012);
+    transform: perspective(1200px) rotateX(calc(var(--rx) + 2.4deg))
+      rotateY(calc(var(--ry) - 3.2deg)) rotateZ(-1.2deg) skewY(0.7deg) scale(1.012);
   }
   52% {
-    transform: perspective(1200px) rotateX(calc(var(--rx) - 2deg)) rotateY(calc(var(--ry) + 3.6deg)) rotateZ(1.1deg)
-      skewY(-0.6deg) scale(1.006);
+    transform: perspective(1200px) rotateX(calc(var(--rx) - 2deg)) rotateY(calc(var(--ry) + 3.6deg))
+      rotateZ(1.1deg) skewY(-0.6deg) scale(1.006);
   }
   76% {
-    transform: perspective(1200px) rotateX(calc(var(--rx) + 1.2deg)) rotateY(calc(var(--ry) - 1.6deg)) rotateZ(-0.6deg)
-      skewY(0.3deg) scale(1.01);
+    transform: perspective(1200px) rotateX(calc(var(--rx) + 1.2deg))
+      rotateY(calc(var(--ry) - 1.6deg)) rotateZ(-0.6deg) skewY(0.3deg) scale(1.01);
   }
 }
 
@@ -647,7 +678,7 @@
 
 .examine-side-label::before,
 .examine-side-label::after {
-  content: "";
+  content: '';
   width: 26px;
   height: 1px;
   background: rgba(205, 143, 151, 0.3);

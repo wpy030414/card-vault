@@ -38,7 +38,11 @@ export function VaultScreen({
         return
       }
       const target = event.target as HTMLElement | null
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      )
+        return
       if (event.key.toLowerCase() === 'n') {
         event.preventDefault()
         onOpenUpload()
@@ -84,7 +88,13 @@ export function VaultScreen({
       />
 
       {cards.length > 0 ? (
-        <button type="button" className="add-fab" onClick={onOpenUpload} aria-label="收录新卡" title="收录新卡">
+        <button
+          type="button"
+          className="add-fab"
+          onClick={onOpenUpload}
+          aria-label="收录新卡"
+          title="收录新卡"
+        >
           <IconPlus size={22} />
         </button>
       ) : null}
@@ -93,11 +103,23 @@ export function VaultScreen({
         <>
           <div className="confirm-scrim" onClick={closeMenu} />
           {logoutConfirm ? (
-            <div className="confirm-dialog" role="alertdialog" aria-modal="true" aria-label="退出登录">
+            <div
+              className="confirm-dialog"
+              role="alertdialog"
+              aria-modal="true"
+              aria-label="退出登录"
+            >
               <h3>要离开收藏匣吗？</h3>
-              <p className="confirm-dialog-text">退出后需要重新扫码才能回来，匣里的卡片不会有任何变化。</p>
+              <p className="confirm-dialog-text">
+                退出后需要重新扫码才能回来，匣里的卡片不会有任何变化。
+              </p>
               <div className="confirm-dialog-actions">
-                <button type="button" className="btn btn-ghost" autoFocus onClick={() => setLogoutConfirm(false)}>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  autoFocus
+                  onClick={() => setLogoutConfirm(false)}
+                >
                   取消
                 </button>
                 <button type="button" className="btn btn-danger" onClick={onLogout}>
@@ -106,7 +128,12 @@ export function VaultScreen({
               </div>
             </div>
           ) : (
-            <div className="confirm-dialog vault-menu-dialog" role="dialog" aria-modal="true" aria-label="收藏匣菜单">
+            <div
+              className="confirm-dialog vault-menu-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-label="收藏匣菜单"
+            >
               <h3>收藏匣</h3>
               <div className="vault-menu-list">
                 <button
@@ -123,7 +150,11 @@ export function VaultScreen({
                     <em>保存四角落点，同类照片一键套用</em>
                   </span>
                 </button>
-                <button type="button" className="vault-menu-item" onClick={() => setLogoutConfirm(true)}>
+                <button
+                  type="button"
+                  className="vault-menu-item"
+                  onClick={() => setLogoutConfirm(true)}
+                >
                   <IconLogout size={16} />
                   <span>
                     <strong>退出登录</strong>
@@ -150,7 +181,12 @@ function UserAvatar({ user }: { user: User }) {
   if (user.avatarUrl && !failed) {
     return (
       <span className="user-avatar">
-        <img src={user.avatarUrl} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+        <img
+          src={user.avatarUrl}
+          alt=""
+          referrerPolicy="no-referrer"
+          onError={() => setFailed(true)}
+        />
       </span>
     )
   }

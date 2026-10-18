@@ -187,7 +187,10 @@
   justify-content: center;
   gap: 12px;
   color: var(--ink-faint);
-  transition: border-color 0.35s, background 0.35s, transform 0.35s;
+  transition:
+    border-color 0.35s,
+    background 0.35s,
+    transform 0.35s;
 }
 
 .pick-slot:hover {
@@ -241,7 +244,9 @@
   gap: 6px;
   opacity: 0;
   transform: translateY(4px);
-  transition: opacity 0.3s, transform 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
 
 .pick-slot:hover .pick-slot-actions,
@@ -357,7 +362,9 @@
   color: #8d4a53;
   border-color: rgba(194, 100, 108, 0.5);
   background: rgba(255, 236, 239, 0.92);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 3px rgba(228, 151, 158, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 0 3px rgba(228, 151, 158, 0.12);
 }
 
 .crop-frame-wrap {
@@ -579,7 +586,10 @@
   color: #6e4248;
   font-size: 15px;
   letter-spacing: 0.05em;
-  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    box-shadow 0.3s;
 }
 
 .field input::placeholder {
@@ -595,7 +605,7 @@
   box-shadow: 0 0 0 3px rgba(228, 151, 158, 0.12);
 }
 
-.field input[type="date"] {
+.field input[type='date'] {
   width: 100%;
   min-width: 0;
   max-width: 100%;
@@ -608,22 +618,22 @@
 
 /* iOS Safari 的日期控件带 UA 固有宽度，会顶破容器 */
 @supports (-webkit-touch-callout: none) {
-  .field input[type="date"],
-  .examine-dialog input[type="date"] {
+  .field input[type='date'],
+  .examine-dialog input[type='date'] {
     -webkit-appearance: none;
     appearance: none;
   }
 
   /* 关掉 UA 外观后，iOS 会把日期值贴到顶边，这里把它重新压回垂直中线 */
-  .field input[type="date"]::-webkit-datetime-edit,
-  .examine-dialog input[type="date"]::-webkit-datetime-edit {
+  .field input[type='date']::-webkit-datetime-edit,
+  .examine-dialog input[type='date']::-webkit-datetime-edit {
     display: flex;
     align-items: center;
     height: 100%;
   }
 
-  .field input[type="date"]::-webkit-date-and-time-value,
-  .examine-dialog input[type="date"]::-webkit-date-and-time-value {
+  .field input[type='date']::-webkit-date-and-time-value,
+  .examine-dialog input[type='date']::-webkit-date-and-time-value {
     text-align: left;
   }
 }
@@ -780,7 +790,10 @@
   border: 1.5px dashed rgba(205, 143, 151, 0.42);
   background: rgba(255, 247, 249, 0.48);
   color: var(--ink-dim);
-  transition: border-color 0.3s, background 0.3s, color 0.3s;
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    color 0.3s;
 }
 
 .preset-pick:hover:not(:disabled) {

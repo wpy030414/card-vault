@@ -1,4 +1,6 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
+import { getConnInfo } from '@hono/node-server/conninfo'
+import type { Context } from 'hono'
+import type { ContentfulStatusCode, StatusCode } from 'hono/utils/http-status'
 import { config } from './config.ts'
 
 export class HttpError extends Error {
@@ -12,50 +14,83 @@ export class HttpError extends Error {
   }
 }
 
+function applyHeaders(c: Context, headers: Record<string, string>): void {
+  for (const [key, value] of Object.entries(headers)) c.header(key, value)
+}
+
 export function sendJson(
-  res: ServerResponse,
-  status: number,
+  c: Context,
+  status: ContentfulStatusCode,
   body: unknown,
-  headers: Record<string, string | string[]> = {},
-): void {
-  const payload = Buffer.from(JSON.stringify(body))
-  res.writeHead(status, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Content-Length': String(payload.byteLength),
-    'Cache-Control': 'no-store',
-    ...headers,
-  })
-  res.end(payload)
+  headers: Record<string, string> = {},
+): Response {
+  c.header('Cache-Control', 'no-store')
+  applyHeaders(c, headers)
+  return c.json(body, status)
 }
 
-export function sendEmpty(res: ServerResponse, status: number, headers: Record<string, string> = {}): void {
-  res.writeHead(status, { 'Cache-Control': 'no-store', ...headers })
-  res.end()
+export function sendEmpty(
+  c: Context,
+  status: StatusCode,
+  headers: Record<string, string> = {},
+): Response {
+  c.header('Cache-Control', 'no-store')
+  applyHeaders(c, headers)
+  return c.body(null, status)
 }
 
-export async function readJson(req: IncomingMessage, limit = config.maxBodyBytes): Promise<unknown> {
-  const type = req.headers['content-type'] ?? ''
+export function redirect(
+  c: Context,
+  location: string,
+  headers: Record<string, string> = {},
+): Response {
+  c.header('Cache-Control', 'no-store')
+  applyHeaders(c, headers)
+  return c.redirect(location, 302)
+}
+
+export async function readJson(c: Context, limit = config.maxBodyBytes): Promise<unknown> {
+  const type = c.req.header('content-type') ?? ''
   if (!/^application\/json\b/i.test(type)) {
     throw new HttpError(415, '请求体必须是 application/json', 'unsupported_media_type')
   }
-  const chunks: Buffer[] = []
+  const declared = c.req.header('content-length')
+  if (declared && Number(declared) > limit) {
+    throw new HttpError(413, '请求体超过大小限制', 'payload_too_large')
+  }
+  const body = c.req.raw.body
+  if (!body) throw new HttpError(400, '请求体为空', 'empty_body')
+  const reader = body.getReader()
+  const chunks: Uint8Array[] = []
   let size = 0
-  for await (const chunk of req) {
-    const buf = typeof chunk === 'string' ? Buffer.from(chunk) : chunk
-    size += buf.byteLength
-    if (size > limit) throw new HttpError(413, '请求体超过大小限制', 'payload_too_large')
-    chunks.push(buf)
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      if (!value) continue
+      size += value.byteLength
+      if (size > limit) throw new HttpError(413, '请求体超过大小限制', 'payload_too_large')
+      chunks.push(value)
+    }
+  } finally {
+    reader.releaseLock()
   }
   if (size === 0) throw new HttpError(400, '请求体为空', 'empty_body')
+  const merged = new Uint8Array(size)
+  let offset = 0
+  for (const chunk of chunks) {
+    merged.set(chunk, offset)
+    offset += chunk.byteLength
+  }
   try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'))
+    return JSON.parse(new TextDecoder().decode(merged))
   } catch {
     throw new HttpError(400, 'JSON 解析失败', 'invalid_json')
   }
 }
 
-export function parseCookies(req: IncomingMessage): Record<string, string> {
-  const header = req.headers.cookie
+export function parseCookies(c: Context): Record<string, string> {
+  const header = c.req.header('cookie')
   if (!header) return {}
   const out: Record<string, string> = {}
   for (const part of header.split(';')) {
@@ -84,21 +119,20 @@ interface CookieOptions {
 export function serializeCookie(name: string, value: string, opts: CookieOptions = {}): string {
   const segments = [`${name}=${encodeURIComponent(value)}`]
   segments.push(`Path=${opts.path ?? '/'}`)
-  if (opts.maxAgeMs !== undefined) segments.push(`Max-Age=${Math.max(0, Math.floor(opts.maxAgeMs / 1000))}`)
+  if (opts.maxAgeMs !== undefined)
+    segments.push(`Max-Age=${Math.max(0, Math.floor(opts.maxAgeMs / 1000))}`)
   if (opts.httpOnly !== false) segments.push('HttpOnly')
   if (opts.secure ?? config.secureCookies) segments.push('Secure')
   segments.push(`SameSite=${opts.sameSite ?? 'Lax'}`)
   return segments.join('; ')
 }
 
-export function redirect(res: ServerResponse, location: string, headers: Record<string, string | string[]> = {}): void {
-  res.writeHead(302, { Location: location, 'Cache-Control': 'no-store', ...headers })
-  res.end()
+export function clientIp(c: Context): string {
+  const forwarded = c.req.header('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0]!.trim()
+  try {
+    return getConnInfo(c).remote.address ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
 }
-
-export function clientIp(req: IncomingMessage): string {
-  const forwarded = req.headers['x-forwarded-for']
-  if (typeof forwarded === 'string' && forwarded.length > 0) return forwarded.split(',')[0]!.trim()
-  return req.socket.remoteAddress ?? 'unknown'
-}
-

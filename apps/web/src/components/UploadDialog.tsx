@@ -168,8 +168,16 @@ export function UploadDialog({ presets, onClose, onCreated, notify }: UploadDial
   const cropPrepared = cropSide === 'front' ? front : back
 
   return (
-    <div className="sheet-backdrop" onClick={(event) => event.target === event.currentTarget && requestClose()}>
-      <section className="sheet panel corner-flourish" aria-modal="true" role="dialog" aria-label="收录新卡">
+    <div
+      className="sheet-backdrop"
+      onClick={(event) => event.target === event.currentTarget && requestClose()}
+    >
+      <section
+        className="sheet panel corner-flourish"
+        aria-modal="true"
+        role="dialog"
+        aria-label="收录新卡"
+      >
         <header className="sheet-head">
           <div className="sheet-heading">
             <span className="sheet-title">{meta.title}</span>
@@ -270,7 +278,8 @@ export function UploadDialog({ presets, onClose, onCreated, notify }: UploadDial
               </div>
 
               <p className="pick-note">
-                图片会上传到你自己的 SQLite 数据库。支持 JPEG / PNG / WebP；相机直出的 HEIC 若无法解码，请先在相册里导出为 JPEG。
+                图片会上传到你自己的 SQLite 数据库。支持 JPEG / PNG / WebP；相机直出的 HEIC
+                若无法解码，请先在相册里导出为 JPEG。
               </p>
             </>
           ) : null}
@@ -362,7 +371,9 @@ export function UploadDialog({ presets, onClose, onCreated, notify }: UploadDial
         {step !== 'crop' ? (
           <footer className="sheet-foot">
             <span className="sheet-note">
-              {step === 'pick' ? '正面必填 · 背面可选 · 建议单张不超过 32MB' : '藏品只会在登录后可见'}
+              {step === 'pick'
+                ? '正面必填 · 背面可选 · 建议单张不超过 32MB'
+                : '藏品只会在登录后可见'}
             </span>
             <div className="sheet-foot-right">
               {step === 'details' ? (
@@ -379,12 +390,22 @@ export function UploadDialog({ presets, onClose, onCreated, notify }: UploadDial
                 </button>
               ) : null}
               {step === 'pick' ? (
-                <button type="button" className="btn btn-gold" onClick={startCrop} disabled={!front || loadingSlot !== null}>
+                <button
+                  type="button"
+                  className="btn btn-gold"
+                  onClick={startCrop}
+                  disabled={!front || loadingSlot !== null}
+                >
                   开始裁切
                   <IconChevronRight size={15} />
                 </button>
               ) : (
-                <button type="button" className="btn btn-gold" onClick={() => void save()} disabled={saving}>
+                <button
+                  type="button"
+                  className="btn btn-gold"
+                  onClick={() => void save()}
+                  disabled={saving}
+                >
                   <IconUpload size={15} />
                   {saving ? '正在收入匣中…' : '收入匣中'}
                 </button>

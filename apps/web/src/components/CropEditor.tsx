@@ -200,7 +200,12 @@ export function CropEditor({
           <small>{presetMode ? '拖动四角框出示意位置' : '拖动四角贴合卡面'}</small>
         </div>
         <div className="crop-toolbar">
-          <button type="button" className="btn btn-ghost" onClick={rerunDetection} disabled={detecting}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={rerunDetection}
+            disabled={detecting}
+          >
             <IconSparkle size={13} />
             {detecting ? '识别中…' : '重新识别'}
           </button>
@@ -245,8 +250,22 @@ export function CropEditor({
           >
             <path className="crop-mask" d={maskPath} fillRule="evenodd" pointerEvents="none" />
             <path className="crop-line" d={linePath} pointerEvents="none" />
-            <line className="crop-third" x1={topMid.x} y1={topMid.y} x2={bottomMid.x} y2={bottomMid.y} pointerEvents="none" />
-            <line className="crop-third" x1={leftMid.x} y1={leftMid.y} x2={rightMid.x} y2={rightMid.y} pointerEvents="none" />
+            <line
+              className="crop-third"
+              x1={topMid.x}
+              y1={topMid.y}
+              x2={bottomMid.x}
+              y2={bottomMid.y}
+              pointerEvents="none"
+            />
+            <line
+              className="crop-third"
+              x1={leftMid.x}
+              y1={leftMid.y}
+              x2={rightMid.x}
+              y2={rightMid.y}
+              pointerEvents="none"
+            />
             <polygon
               points={corners.map((point) => `${point.x},${point.y}`).join(' ')}
               fill="rgba(0,0,0,0.001)"
@@ -290,7 +309,12 @@ export function CropEditor({
           <IconChevronLeft size={15} />
           上一步
         </button>
-        <button type="button" className="btn btn-gold" onClick={() => void confirm()} disabled={busy || !quad}>
+        <button
+          type="button"
+          className="btn btn-gold"
+          onClick={() => void confirm()}
+          disabled={busy || !quad}
+        >
           {presetMode ? '保存模式' : '下一步'}
           <IconChevronRight size={15} />
         </button>

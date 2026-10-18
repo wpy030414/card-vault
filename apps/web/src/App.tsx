@@ -148,13 +148,10 @@ export default function App() {
     [notify],
   )
 
-  const handlePresetCreate = useCallback(
-    async (input: { name: string; quad: CropQuad }) => {
-      const { preset } = await api.createCropPreset(input)
-      setPresets((current) => [preset, ...current])
-    },
-    [],
-  )
+  const handlePresetCreate = useCallback(async (input: { name: string; quad: CropQuad }) => {
+    const { preset } = await api.createCropPreset(input)
+    setPresets((current) => [preset, ...current])
+  }, [])
 
   const handlePresetDelete = useCallback(async (preset: CropPreset) => {
     await api.deleteCropPreset(preset.id)
@@ -185,7 +182,7 @@ export default function App() {
     [notify],
   )
 
-  const examineCard = examineId ? cards.find((card) => card.id === examineId) ?? null : null
+  const examineCard = examineId ? (cards.find((card) => card.id === examineId) ?? null) : null
 
   if (auth.status === 'loading') {
     return <Boot caption="正在启封…" />

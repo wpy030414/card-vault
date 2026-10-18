@@ -8,7 +8,7 @@
 }
 
 .login-scene::before {
-  content: "";
+  content: '';
   position: absolute;
   width: min(120vw, 1500px);
   aspect-ratio: 1;
@@ -65,7 +65,7 @@
 }
 
 .login-single::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 50%;
   top: 50%;
@@ -115,7 +115,7 @@
 }
 
 .qr-card::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 9px;
   border: 1px solid rgba(205, 143, 151, 0.26);
@@ -124,7 +124,7 @@
 }
 
 .qr-card::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -140,12 +140,11 @@
   width: 104px;
   height: 27px;
   transform: translateX(-50%) rotate(-2.2deg);
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255, 161, 172, 0.86) 0 9px,
-      rgba(254, 236, 239, 0.92) 9px 18px
-    );
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 161, 172, 0.86) 0 9px,
+    rgba(254, 236, 239, 0.92) 9px 18px
+  );
   border-left: 2px dashed rgba(255, 255, 255, 0.65);
   border-right: 2px dashed rgba(255, 255, 255, 0.65);
   box-shadow: 0 4px 10px rgba(184, 110, 120, 0.16);
@@ -255,20 +254,20 @@
   animation: status-pulse 2.6s ease-out infinite;
 }
 
-.qr-status[data-tone="error"] {
+.qr-status[data-tone='error'] {
   color: #9b3a40;
 }
 
-.qr-status[data-tone="ok"] {
+.qr-status[data-tone='ok'] {
   color: #4b7350;
 }
 
-.qr-status[data-tone="ok"] .status-dot {
+.qr-status[data-tone='ok'] .status-dot {
   background: #568a5e;
   animation: none;
 }
 
-.qr-status[data-tone="error"] .status-dot {
+.qr-status[data-tone='error'] .status-dot {
   background: #a94331;
   animation: none;
 }
@@ -308,7 +307,9 @@
   color: #6e4248;
   border: 1px solid rgba(205, 143, 151, 0.36);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(254, 234, 237, 0.92));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 6px rgba(162, 90, 101, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 2px 6px rgba(162, 90, 101, 0.1);
 }
 
 .qr-actions .btn-paper:hover {

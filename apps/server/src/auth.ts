@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
-import type { IncomingMessage } from 'node:http'
+import type { Context } from 'hono'
 import { and, eq, gt, lt } from 'drizzle-orm'
 import { config } from './config.ts'
 import { db } from './db.ts'
@@ -62,9 +62,9 @@ export function sessionCookie(token: string, expiresAt: number): string {
  * 永久会话的 Cookie 每 400 天到期，靠页面加载时（GET /api/me）重新下发续期；
  * 只要在 400 天内打开过应用，登录状态就不会丢。
  */
-export function renewedSessionCookie(req: IncomingMessage): string | null {
+export function renewedSessionCookie(c: Context): string | null {
   if (config.sessionTtlMs !== 0) return null
-  const token = sessionToken(req)
+  const token = sessionToken(c)
   if (!token) return null
   return sessionCookie(token, PERMANENT_SESSION_EXPIRY)
 }
@@ -73,12 +73,12 @@ export function logoutCookie(): string {
   return serializeCookie(config.sessionCookie, '', { maxAgeMs: 0, httpOnly: true })
 }
 
-function sessionToken(req: IncomingMessage): string | null {
-  return parseCookies(req)[config.sessionCookie] ?? null
+function sessionToken(c: Context): string | null {
+  return parseCookies(c)[config.sessionCookie] ?? null
 }
 
-export async function getSessionUser(req: IncomingMessage): Promise<AuthUser | null> {
-  const token = sessionToken(req)
+export async function getSessionUser(c: Context): Promise<AuthUser | null> {
+  const token = sessionToken(c)
   if (!token) return null
   const rows = await db()
     .select({
@@ -96,16 +96,18 @@ export async function getSessionUser(req: IncomingMessage): Promise<AuthUser | n
   return publicUser(row)
 }
 
-export async function requireUser(req: IncomingMessage): Promise<AuthUser> {
-  const user = await getSessionUser(req)
+export async function requireUser(c: Context): Promise<AuthUser> {
+  const user = await getSessionUser(c)
   if (!user) throw new HttpError(401, '尚未登录', 'unauthorized')
   return user
 }
 
-export async function deleteSession(req: IncomingMessage): Promise<void> {
-  const token = sessionToken(req)
+export async function deleteSession(c: Context): Promise<void> {
+  const token = sessionToken(c)
   if (!token) return
-  await db().delete(sessions).where(eq(sessions.id, hashToken(token)))
+  await db()
+    .delete(sessions)
+    .where(eq(sessions.id, hashToken(token)))
 }
 
 /* ────────────────────────── 登录握手 ────────────────────────── */
@@ -128,10 +130,14 @@ export interface LoginAttemptInfo {
 export async function createLoginAttempt(mode: AttemptMode): Promise<LoginAttemptInfo> {
   const now = Date.now()
   // 顺手清掉一天前的过期握手，表不会无限增长
-  await db().delete(loginAttempts).where(lt(loginAttempts.expiresAt, now - 24 * 60 * 60 * 1000))
+  await db()
+    .delete(loginAttempts)
+    .where(lt(loginAttempts.expiresAt, now - 24 * 60 * 60 * 1000))
   const token = randomBytes(24).toString('base64url')
   const expiresAt = now + config.loginAttemptTtlMs
-  await db().insert(loginAttempts).values({ token, mode, status: 'pending', createdAt: now, expiresAt })
+  await db()
+    .insert(loginAttempts)
+    .values({ token, mode, status: 'pending', createdAt: now, expiresAt })
   return {
     token,
     mode,
@@ -148,7 +154,11 @@ export async function createLoginAttempt(mode: AttemptMode): Promise<LoginAttemp
 
 export async function getLoginAttempt(token: string): Promise<LoginAttemptInfo | null> {
   if (!/^[A-Za-z0-9_-]{16,64}$/.test(token)) return null
-  const rows = await db().select().from(loginAttempts).where(eq(loginAttempts.token, token)).limit(1)
+  const rows = await db()
+    .select()
+    .from(loginAttempts)
+    .where(eq(loginAttempts.token, token))
+    .limit(1)
   const row = rows[0]
   if (!row) return null
   return {
@@ -218,10 +228,15 @@ export async function createQqQrSession(): Promise<QqQrSession> {
     `https://ssl.ptlogin2.qq.com/ptqrshow?appid=${PTLOGIN_APPID}&e=2&l=M&s=5&d=110&v=4&t=${stamp}` +
     `&daid=${PTLOGIN_DAID}&pt_3rd_aid=0`
   const response = await fetch(url, {
-    headers: { 'user-agent': PTLOGIN_UA, referer: PTLOGIN_REFERER, accept: 'image/png,image/*;q=0.8' },
+    headers: {
+      'user-agent': PTLOGIN_UA,
+      referer: PTLOGIN_REFERER,
+      accept: 'image/png,image/*;q=0.8',
+    },
     signal: AbortSignal.timeout(12_000),
   })
-  if (!response.ok) throw new HttpError(502, `QQ 登录服务返回 HTTP ${response.status}`, 'qq_upstream')
+  if (!response.ok)
+    throw new HttpError(502, `QQ 登录服务返回 HTTP ${response.status}`, 'qq_upstream')
   const image = Buffer.from(await response.arrayBuffer())
   if (image.byteLength < 100) throw new HttpError(502, 'QQ 登录服务没有返回二维码', 'qq_upstream')
   const setCookies = response.headers.getSetCookie?.() ?? []
@@ -233,16 +248,20 @@ export async function createQqQrSession(): Promise<QqQrSession> {
   const now = Date.now()
   const token = randomBytes(24).toString('base64url')
   const expiresAt = now + 2 * 60 * 1000
-  await db().delete(loginAttempts).where(lt(loginAttempts.expiresAt, now - 24 * 60 * 60 * 1000))
-  await db().insert(loginAttempts).values({
-    token,
-    mode: 'qqqr',
-    status: 'pending',
-    qrsig,
-    ptqrtoken: String(hash33(qrsig)),
-    createdAt: now,
-    expiresAt,
-  })
+  await db()
+    .delete(loginAttempts)
+    .where(lt(loginAttempts.expiresAt, now - 24 * 60 * 60 * 1000))
+  await db()
+    .insert(loginAttempts)
+    .values({
+      token,
+      mode: 'qqqr',
+      status: 'pending',
+      qrsig,
+      ptqrtoken: String(hash33(qrsig)),
+      createdAt: now,
+      expiresAt,
+    })
   return { token, image: `data:image/png;base64,${image.toString('base64')}`, expiresAt }
 }
 
@@ -296,18 +315,25 @@ export async function pollQqQr(token: string): Promise<QqQrPollResult> {
     },
     signal: AbortSignal.timeout(12_000),
   })
-  if (!response.ok) throw new HttpError(502, `QQ 登录服务返回 HTTP ${response.status}`, 'qq_upstream')
+  if (!response.ok)
+    throw new HttpError(502, `QQ 登录服务返回 HTTP ${response.status}`, 'qq_upstream')
   const text = await response.text()
   const match = /ptuiCB\('(\d+)','[^']*','([^']*)'/.exec(text)
   const code = match?.[1] ?? ''
   const redirectUrl = match?.[2] ?? ''
 
   if (code === '65') {
-    await db().update(loginAttempts).set({ status: 'expired' }).where(eq(loginAttempts.token, token))
+    await db()
+      .update(loginAttempts)
+      .set({ status: 'expired' })
+      .where(eq(loginAttempts.token, token))
     return { status: 'expired' }
   }
   if (code === '67') {
-    await db().update(loginAttempts).set({ status: 'scanned', seenAt: Date.now() }).where(eq(loginAttempts.token, token))
+    await db()
+      .update(loginAttempts)
+      .set({ status: 'scanned', seenAt: Date.now() })
+      .where(eq(loginAttempts.token, token))
     return { status: 'scanned' }
   }
   if (code !== '0') {
@@ -380,7 +406,9 @@ export function qqAuthorizeUrl(state: string): string {
   return `${QQ_AUTHORIZE}?${params.toString()}`
 }
 
-export async function exchangeQqCode(code: string): Promise<{ openid: string; nickname: string; avatarUrl: string | null }> {
+export async function exchangeQqCode(
+  code: string,
+): Promise<{ openid: string; nickname: string; avatarUrl: string | null }> {
   const tokenParams = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: config.qqAppId,
@@ -396,7 +424,8 @@ export async function exchangeQqCode(code: string): Promise<{ openid: string; ni
   const me = await fetchQqJson<QqMeResponse>(
     `${QQ_ME}?${new URLSearchParams({ access_token: token.access_token, fmt: 'json' }).toString()}`,
   )
-  if (!me.openid) throw new HttpError(502, me.error_description || 'QQ openid 获取失败', 'qq_openid')
+  if (!me.openid)
+    throw new HttpError(502, me.error_description || 'QQ openid 获取失败', 'qq_openid')
 
   let nickname = `QQ 藏家 ${me.openid.slice(-4)}`
   let avatarUrl: string | null = null
@@ -434,7 +463,12 @@ export async function upsertUser(input: {
   }
   const inserted = await db()
     .insert(users)
-    .values({ qqOpenId: input.openid, nickname: input.nickname, avatarUrl: input.avatarUrl, createdAt: Date.now() })
+    .values({
+      qqOpenId: input.openid,
+      nickname: input.nickname,
+      avatarUrl: input.avatarUrl,
+      createdAt: Date.now(),
+    })
     .returning()
   return publicUser(inserted[0]!)
 }

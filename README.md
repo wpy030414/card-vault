@@ -22,17 +22,20 @@ CardVault 是一个只属于自己的卡牌收藏匣：用 QQ 扫码开门，把
 | --- | --- |
 | 前端 | Vite 8（Rolldown）+ React 19 + TypeScript |
 | 样式 | 原生 CSS，暖粉拟物主题，3D 翻面与 CSS 变量驱动的彩光 |
-| 后端 | Node 原生 `node:http` 路由，开发时 Node 26 直接运行 TypeScript，生产用 tsup 打包 |
+| 后端 | Hono + `@hono/node-server`，开发时 Node 直接运行 TypeScript，生产用 vp pack 打包 |
 | 数据 | `@homurajs/db` + Drizzle ORM + `node:sqlite` |
 | 登录 | 腾讯网页 QQ 扫码（ptlogin2），服务端持有 `qrsig` 轮询 |
+| 构建 | vp（Vite+）：`vp dev` / `vp build` / `vp pack` / `vp check` |
 | 测试 | Playwright E2E（真实构建 + 真实 SQLite） |
 
 ## 快速开始
 
-要求 Node ≥ 22.18（原生剥离 TypeScript，且需要 `node:sqlite`），推荐 Node 26；包管理器使用 pnpm。
+要求 Node ≥ 22.18（原生剥离 TypeScript，且需要 `node:sqlite`），`.nvmrc` 钉在 Node 24 LTS；包管理器使用 pnpm，由 vp 依据 lockfile 代理。
+
+构建与检查统一走 vp（Vite+）：先执行 `curl -fsSL https://vite.plus | bash` 安装，再用 `vp install` 安装依赖。
 
 ```bash
-pnpm install
+vp install
 cp .env.example .env
 pnpm dev
 ```
@@ -56,8 +59,9 @@ pnpm start
 
 ```bash
 pnpm dev            # API + Vite 同时启动
+pnpm check          # 三个 workspace 包的格式、lint 与类型检查
 pnpm typecheck      # 三个 workspace 包 + E2E 的类型检查
-pnpm build          # tsup 打包服务端 + Vite 构建前端
+pnpm build          # vp pack 打包服务端 + vp build 构建前端
 pnpm start          # 生产服务器
 pnpm test:e2e       # Playwright E2E（自动构建并在 4318 端口起服务）
 pnpm db:generate    # 由 apps/server/src/schema.ts 生成 SQLite 迁移
